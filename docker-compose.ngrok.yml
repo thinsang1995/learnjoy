@@ -10,7 +10,7 @@ services:
     image: nginx:alpine
     container_name: learnjoy-nginx
     ports:
-      - "8080:80"  # Expose on 8080, ngrok will tunnel this
+      - "8080:80" # Expose on 8080, ngrok will tunnel this
     volumes:
       - ./nginx/nginx.conf:/etc/nginx/nginx.conf:ro
       - ./uploads:/var/www/uploads:ro
@@ -34,7 +34,7 @@ services:
 
   # Backend doesn't need port exposed to host when using nginx
   backend:
-    ports: []  # Remove direct port exposure
+    ports: [] # Remove direct port exposure
 
 networks:
   learnjoy-network:
