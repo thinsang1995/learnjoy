@@ -31,12 +31,36 @@ async function bootstrap() {
     level: 6,
   }));
 
-  // Enable CORS
+  // Enable CORS - Allow all origins in development/ngrok mode
+  const allowedOrigins = process.env.CORS_ORIGINS 
+    ? process.env.CORS_ORIGINS.split(',') 
+    : ['http://localhost:3000', 'http://localhost:8080'];
+  
   app.enableCors({
-    origin: process.env.FRONTEND_URL || 'http://localhost:3000',
+    origin: (origin, callback) => {
+      // Allow requests with no origin (like mobile apps, curl, etc.)
+      if (!origin) return callback(null, true);
+      
+      // Allow all ngrok domains
+      if (origin.includes('ngrok') || origin.includes('ngrok-free.app')) {
+        return callback(null, true);
+      }
+      
+      // Check against allowed origins
+      if (allowedOrigins.includes(origin) || allowedOrigins.includes('*')) {
+        return callback(null, true);
+      }
+      
+      // In development, allow all
+      if (process.env.NODE_ENV !== 'production') {
+        return callback(null, true);
+      }
+      
+      callback(new Error('Not allowed by CORS'));
+    },
     credentials: true,
     methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'OPTIONS'],
-    allowedHeaders: ['Content-Type', 'Authorization', 'Range', 'Accept-Ranges'],
+    allowedHeaders: ['Content-Type', 'Authorization', 'Range', 'Accept-Ranges', 'ngrok-skip-browser-warning'],
     exposedHeaders: ['Content-Range', 'Accept-Ranges', 'Content-Length', 'X-Cache'],
   });
 

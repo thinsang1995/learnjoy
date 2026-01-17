@@ -1,20 +1,32 @@
 // API configuration
-const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001';
+// In browser: use relative path (works with nginx proxy)
+// On server (SSR): use direct backend URL
+const getApiBaseUrl = () => {
+  // Check if running in browser
+  if (typeof window !== 'undefined') {
+    // Browser: use relative path - nginx will proxy to backend
+    return '';
+  }
+  // Server-side (SSR): use direct backend URL
+  return process.env.NEXT_PUBLIC_API_URL || 'http://backend:3001';
+};
+
+const API_BASE_URL = getApiBaseUrl();
 
 export const API_ENDPOINTS = {
   // Audio
   audio: `${API_BASE_URL}/api/audio`,
   audioUpload: `${API_BASE_URL}/api/audio/upload`,
   audioTopics: `${API_BASE_URL}/api/audio/topics`,
-  audioById: (id: string) => `${API_BASE_URL}/api/audio/${id}`,
-  audioTranscript: (id: string) => `${API_BASE_URL}/api/audio/${id}/transcript`,
+  audioById: (id: string) => `${getApiBaseUrl()}/api/audio/${id}`,
+  audioTranscript: (id: string) => `${getApiBaseUrl()}/api/audio/${id}/transcript`,
   
   // Quiz
-  quizByAudio: (audioId: string) => `${API_BASE_URL}/api/audio/${audioId}/quiz`,
+  quizByAudio: (audioId: string) => `${getApiBaseUrl()}/api/audio/${audioId}/quiz`,
   quizGenerate: `${API_BASE_URL}/api/quiz/generate`,
   quizGenerateBatch: `${API_BASE_URL}/api/quiz/generate-batch`,
-  quizSubmit: (id: string) => `${API_BASE_URL}/api/quiz/${id}/submit`,
-  quizRegenerate: (audioId: string) => `${API_BASE_URL}/api/audio/${audioId}/quiz/regenerate`,
+  quizSubmit: (id: string) => `${getApiBaseUrl()}/api/quiz/${id}/submit`,
+  quizRegenerate: (audioId: string) => `${getApiBaseUrl()}/api/audio/${audioId}/quiz/regenerate`,
   
   // Transcript
   transcriptHealth: `${API_BASE_URL}/api/transcript/health`,

@@ -29,11 +29,15 @@ services:
   frontend:
     environment:
       NODE_ENV: development
-      # Use empty string or /api - frontend will call /api/* which nginx proxies to backend
-      NEXT_PUBLIC_API_URL: ""
+      # For SSR: use backend service name (docker internal network)
+      # For browser: frontend code uses relative path /api/*
+      NEXT_PUBLIC_API_URL: "http://backend:3001"
 
   # Backend doesn't need port exposed to host when using nginx
   backend:
+    environment:
+      # Allow CORS from any ngrok domain
+      CORS_ORIGINS: "*"
     ports: [] # Remove direct port exposure
 
 networks:
