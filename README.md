@@ -147,21 +147,64 @@ cd frontend && yarn install
 
 # Generate Prisma client
 cd backend && yarn prisma generate
+
+# === E2E Testing ===
+
+cd frontend
+
+# Install Playwright browsers (first time)
+npx playwright install
+
+# Run E2E tests
+yarn test:e2e
+
+# Run tests with UI
+yarn test:e2e:ui
+
+# View test report
+yarn test:e2e:report
 ```
+
+## Production Deployment
+
+```bash
+# Build and run production containers
+docker-compose -f docker-compose.prod.yml up -d
+
+# With nginx reverse proxy
+docker-compose -f docker-compose.prod.yml --profile with-nginx up -d
+```
+
+## Performance Optimizations
+
+- ✅ HTTP Range Requests for audio streaming
+- ✅ Gzip/Deflate compression for API responses
+- ✅ In-memory caching for frequent queries
+- ✅ Helmet security headers
+- ✅ Static asset caching (1 year)
+- ✅ Next.js optimizations (image optimization, CSS minification)
+- ✅ Loading skeletons for better UX
 
 ## API Endpoints
 
 ### Audio
 - `GET /api/audio` - List audio files
 - `GET /api/audio/:id` - Get audio details
-- `POST /api/audio` - Create audio entry
+- `GET /api/audio/:id/stream` - Stream audio with Range support
+- `POST /api/audio/upload` - Upload audio file
 - `PUT /api/audio/:id` - Update audio
 - `DELETE /api/audio/:id` - Delete audio
 
 ### Quiz
 - `GET /api/audio/:id/quiz` - Get quizzes for audio
-- `POST /api/quiz` - Create quiz
+- `POST /api/quiz/generate` - Generate single quiz
+- `POST /api/quiz/generate-batch` - Generate multiple quizzes
 - `POST /api/quiz/:id/submit` - Submit answer
+
+### Health
+- `GET /api/health` - Full health check
+- `GET /api/health/live` - Liveness probe
+- `GET /api/health/ready` - Readiness probe
 
 ## License
 

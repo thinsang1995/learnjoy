@@ -6,6 +6,7 @@ import { TranscriptModule } from './transcript/transcript.module';
 import { AiModule } from './ai/ai.module';
 import { StorageModule } from './storage/storage.module';
 import { PrismaModule } from './prisma/prisma.module';
+import { HealthModule } from './health/health.module';
 
 @Module({
   imports: [
@@ -14,6 +15,7 @@ import { PrismaModule } from './prisma/prisma.module';
       envFilePath: ['.env.local', '.env'],
     }),
     PrismaModule,
+    HealthModule,
     AudioModule,
     QuizModule,
     TranscriptModule,

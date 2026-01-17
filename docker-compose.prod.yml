@@ -1,0 +1,156 @@
+version: "3.8"
+
+# Production Docker Compose for LearnJoy Japanese Listening Platform
+# Usage: docker-compose -f docker-compose.prod.yml up -d
+
+services:
+  # PostgreSQL Database
+  postgres:
+    image: postgres:15-alpine
+    container_name: learnjoy-db-prod
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: learnjoy
+      POSTGRES_USER: admin
+      POSTGRES_PASSWORD: ${DB_PASSWORD}
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U admin -d learnjoy"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - learnjoy-network
+    # No port exposure in production - internal only
+
+  # NestJS Backend
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+      args:
+        - NODE_ENV=production
+    container_name: learnjoy-backend-prod
+    restart: unless-stopped
+    ports:
+      - "3001:3001"
+    environment:
+      NODE_ENV: production
+      DATABASE_URL: postgresql://admin:${DB_PASSWORD}@postgres:5432/learnjoy
+      GROQ_API_KEY: ${GROQ_API_KEY}
+      R2_ACCOUNT_ID: ${R2_ACCOUNT_ID}
+      R2_ACCESS_KEY_ID: ${R2_ACCESS_KEY_ID}
+      R2_SECRET_ACCESS_KEY: ${R2_SECRET_ACCESS_KEY}
+      R2_BUCKET_NAME: ${R2_BUCKET_NAME:-learnjoy-audio}
+      R2_PUBLIC_URL: ${R2_PUBLIC_URL}
+      WHISPER_SERVICE_URL: http://whisper:5000
+      FRONTEND_URL: ${FRONTEND_URL:-https://learnjoy.vercel.app}
+    volumes:
+      - ./uploads:/app/uploads:ro
+    depends_on:
+      postgres:
+        condition: service_healthy
+    networks:
+      - learnjoy-network
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:3001/api/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+    deploy:
+      resources:
+        limits:
+          cpus: "1"
+          memory: 1G
+        reservations:
+          cpus: "0.5"
+          memory: 512M
+
+  # Next.js Frontend (Production Build)
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+      args:
+        - NODE_ENV=production
+        - NEXT_PUBLIC_API_URL=${NEXT_PUBLIC_API_URL:-http://localhost:3001}
+    container_name: learnjoy-frontend-prod
+    restart: unless-stopped
+    ports:
+      - "3000:3000"
+    environment:
+      NODE_ENV: production
+      NEXT_PUBLIC_API_URL: ${NEXT_PUBLIC_API_URL:-http://localhost:3001}
+    depends_on:
+      - backend
+    networks:
+      - learnjoy-network
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:3000"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+    deploy:
+      resources:
+        limits:
+          cpus: "0.5"
+          memory: 512M
+        reservations:
+          cpus: "0.25"
+          memory: 256M
+
+  # Whisper.cpp Service
+  whisper:
+    build:
+      context: ./whisper
+      dockerfile: ${WHISPER_DOCKERFILE:-Dockerfile}
+    container_name: learnjoy-whisper-prod
+    restart: unless-stopped
+    volumes:
+      - ./uploads:/uploads:ro
+      - whisper_models:/models
+    environment:
+      WHISPER_MODEL: ${WHISPER_MODEL:-medium}
+      WHISPER_LANGUAGE: ja
+    networks:
+      - learnjoy-network
+    # No external port - internal only
+    deploy:
+      resources:
+        limits:
+          cpus: "2"
+          memory: 4G
+        reservations:
+          cpus: "1"
+          memory: 2G
+
+  # Nginx Reverse Proxy (Optional)
+  nginx:
+    image: nginx:alpine
+    container_name: learnjoy-nginx-prod
+    restart: unless-stopped
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - ./nginx/nginx.conf:/etc/nginx/nginx.conf:ro
+      - ./nginx/ssl:/etc/nginx/ssl:ro
+      - ./uploads:/var/www/uploads:ro
+    depends_on:
+      - frontend
+      - backend
+    networks:
+      - learnjoy-network
+    profiles:
+      - with-nginx
+
+volumes:
+  postgres_data:
+    driver: local
+  whisper_models:
+    driver: local
+
+networks:
+  learnjoy-network:
+    driver: bridge

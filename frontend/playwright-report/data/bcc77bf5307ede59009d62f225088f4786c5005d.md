@@ -1,0 +1,83 @@
+# Page snapshot
+
+```yaml
+- generic [active] [ref=e1]:
+  - main [ref=e2]:
+    - navigation [ref=e3]:
+      - generic [ref=e4]:
+        - link "🎧 LearnJoy" [ref=e5] [cursor=pointer]:
+          - /url: /
+        - generic [ref=e6]:
+          - link "ホーム" [ref=e7] [cursor=pointer]:
+            - /url: /
+          - link "レッスン" [ref=e8] [cursor=pointer]:
+            - /url: /audio
+    - generic [ref=e10]:
+      - generic [ref=e11]:
+        - heading "楽しく学ぶ 日本語リスニング" [level=1] [ref=e12]
+        - paragraph [ref=e13]: N2・N3レベルの音声を聞いて、クイズで理解度をチェック。 毎日の練習で確実にリスニング力をアップ！
+        - link "今すぐ始める →" [ref=e14] [cursor=pointer]:
+          - /url: /audio
+      - generic [ref=e15]:
+        - generic [ref=e16]:
+          - generic [ref=e17]: 🎧
+          - heading "日常会話" [level=3] [ref=e18]
+          - paragraph [ref=e19]: 挨拶から買い物まで、日常生活で使える表現を学習
+        - generic [ref=e20]:
+          - generic [ref=e21]: 💼
+          - heading "ビジネス" [level=3] [ref=e22]
+          - paragraph [ref=e23]: 会議や電話応対など、仕事で必要な日本語を練習
+        - generic [ref=e24]:
+          - generic [ref=e25]: ✈️
+          - heading "旅行" [level=3] [ref=e26]
+          - paragraph [ref=e27]: 駅や観光地で使える便利なフレーズを習得
+    - generic [ref=e29]:
+      - heading "学習の流れ" [level=2] [ref=e30]
+      - generic [ref=e31]:
+        - generic [ref=e32]:
+          - generic [ref=e33]: "1"
+          - generic [ref=e34]:
+            - heading "音声を聞く" [level=3] [ref=e35]
+            - paragraph [ref=e36]: N2・N3レベルの日本語音声を繰り返し聞いて、内容を理解しましょう
+        - generic [ref=e37]:
+          - generic [ref=e38]: "2"
+          - generic [ref=e39]:
+            - heading "クイズに挑戦" [level=3] [ref=e40]
+            - paragraph [ref=e41]: 選択問題、穴埋め、並べ替えの3種類のクイズで理解度をチェック
+        - generic [ref=e42]:
+          - generic [ref=e43]: "3"
+          - generic [ref=e44]:
+            - heading "復習する" [level=3] [ref=e45]
+            - paragraph [ref=e46]: 間違えた問題を復習して、確実に知識を定着させましょう
+    - generic [ref=e48]:
+      - generic [ref=e49]:
+        - generic [ref=e50]:
+          - heading "🎧 LearnJoy" [level=3] [ref=e51]
+          - paragraph [ref=e52]: 日本語リスニングを楽しく学習。 N2・N3レベルの音声とクイズで確実にスキルアップ。
+        - generic [ref=e53]:
+          - heading "トピック" [level=4] [ref=e54]
+          - list [ref=e55]:
+            - listitem [ref=e56]:
+              - link "💬 日常会話" [ref=e57] [cursor=pointer]:
+                - /url: /audio?topic=daily
+            - listitem [ref=e58]:
+              - link "💼 ビジネス" [ref=e59] [cursor=pointer]:
+                - /url: /audio?topic=business
+            - listitem [ref=e60]:
+              - link "✈️ 旅行" [ref=e61] [cursor=pointer]:
+                - /url: /audio?topic=travel
+            - listitem [ref=e62]:
+              - link "🏯 文化" [ref=e63] [cursor=pointer]:
+                - /url: /audio?topic=culture
+        - generic [ref=e64]:
+          - heading "レベル" [level=4] [ref=e65]
+          - list [ref=e66]:
+            - listitem [ref=e67]:
+              - link "JLPT N2" [ref=e68] [cursor=pointer]:
+                - /url: /audio?jlptLevel=N2
+            - listitem [ref=e69]:
+              - link "JLPT N3" [ref=e70] [cursor=pointer]:
+                - /url: /audio?jlptLevel=N3
+      - paragraph [ref=e72]: © 2026 LearnJoy. 日本語学習を楽しく。
+  - alert [ref=e73]
+```

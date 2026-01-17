@@ -2,6 +2,7 @@ import { Module, forwardRef } from '@nestjs/common';
 import { MulterModule } from '@nestjs/platform-express';
 import { memoryStorage } from 'multer';
 import { AudioController } from './audio.controller';
+import { AudioStreamController } from './audio-stream.controller';
 import { AudioService } from './audio.service';
 import { AudioUploadService } from './audio-upload.service';
 import { StorageModule } from '../storage/storage.module';
@@ -18,7 +19,7 @@ import { TranscriptModule } from '../transcript/transcript.module';
     StorageModule,
     forwardRef(() => TranscriptModule),
   ],
-  controllers: [AudioController],
+  controllers: [AudioController, AudioStreamController],
   providers: [AudioService, AudioUploadService],
   exports: [AudioService, AudioUploadService],
 })

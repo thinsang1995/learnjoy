@@ -1,0 +1,41 @@
+version: "3.8"
+
+# Docker Compose override for ngrok/public access
+# This adds nginx reverse proxy and configures frontend to use relative API path
+# Usage: docker compose -f docker-compose.yml -f docker-compose.ngrok.yml up -d
+
+services:
+  # Nginx Reverse Proxy - Entry point for all requests
+  nginx:
+    image: nginx:alpine
+    container_name: learnjoy-nginx
+    ports:
+      - "8080:80"  # Expose on 8080, ngrok will tunnel this
+    volumes:
+      - ./nginx/nginx.conf:/etc/nginx/nginx.conf:ro
+      - ./uploads:/var/www/uploads:ro
+    depends_on:
+      - frontend
+      - backend
+    networks:
+      - learnjoy-network
+    healthcheck:
+      test: ["CMD", "wget", "-q", "--spider", "http://localhost/health"]
+      interval: 10s
+      timeout: 5s
+      retries: 3
+
+  # Override frontend to use relative API path (via nginx proxy)
+  frontend:
+    environment:
+      NODE_ENV: development
+      # Use empty string or /api - frontend will call /api/* which nginx proxies to backend
+      NEXT_PUBLIC_API_URL: ""
+
+  # Backend doesn't need port exposed to host when using nginx
+  backend:
+    ports: []  # Remove direct port exposure
+
+networks:
+  learnjoy-network:
+    driver: bridge

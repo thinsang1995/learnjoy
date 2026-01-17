@@ -1,0 +1,44 @@
+# Page snapshot
+
+```yaml
+- main [ref=e2]:
+  - navigation [ref=e3]:
+    - generic [ref=e4]:
+      - link "🎧 LearnJoy" [ref=e5] [cursor=pointer]:
+        - /url: /
+      - generic [ref=e6]:
+        - link "ホーム" [ref=e7] [cursor=pointer]:
+          - /url: /
+        - link "レッスン" [ref=e8] [cursor=pointer]:
+          - /url: /audio
+  - generic [ref=e63]:
+    - generic [ref=e64]:
+      - generic [ref=e65]:
+        - heading "🎧 LearnJoy" [level=3] [ref=e66]
+        - paragraph [ref=e67]: 日本語リスニングを楽しく学習。 N2・N3レベルの音声とクイズで確実にスキルアップ。
+      - generic [ref=e68]:
+        - heading "トピック" [level=4] [ref=e69]
+        - list [ref=e70]:
+          - listitem [ref=e71]:
+            - link "💬 日常会話" [ref=e72] [cursor=pointer]:
+              - /url: /audio?topic=daily
+          - listitem [ref=e73]:
+            - link "💼 ビジネス" [ref=e74] [cursor=pointer]:
+              - /url: /audio?topic=business
+          - listitem [ref=e75]:
+            - link "✈️ 旅行" [ref=e76] [cursor=pointer]:
+              - /url: /audio?topic=travel
+          - listitem [ref=e77]:
+            - link "🏯 文化" [ref=e78] [cursor=pointer]:
+              - /url: /audio?topic=culture
+      - generic [ref=e79]:
+        - heading "レベル" [level=4] [ref=e80]
+        - list [ref=e81]:
+          - listitem [ref=e82]:
+            - link "JLPT N2" [ref=e83] [cursor=pointer]:
+              - /url: /audio?jlptLevel=N2
+          - listitem [ref=e84]:
+            - link "JLPT N3" [ref=e85] [cursor=pointer]:
+              - /url: /audio?jlptLevel=N3
+    - paragraph [ref=e87]: © 2026 LearnJoy. 日本語学習を楽しく。
+```
