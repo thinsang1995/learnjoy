@@ -1,10 +1,14 @@
 # Production Dockerfile for NestJS Backend
-FROM node:20-alpine AS builder
+FROM node:20-slim AS builder
 
 WORKDIR /app
 
 # Install dependencies for native modules
-RUN apk add --no-cache python3 make g++
+RUN apt-get update && apt-get install -y \
+    python3 \
+    make \
+    g++ \
+    && rm -rf /var/lib/apt/lists/*
 
 # Copy package files
 COPY package.json yarn.lock* ./
@@ -25,7 +29,7 @@ COPY . .
 RUN yarn build
 
 # Production stage
-FROM node:20-alpine AS production
+FROM node:20-slim AS production
 
 WORKDIR /app
 
@@ -43,8 +47,8 @@ RUN yarn prisma generate
 COPY --from=builder /app/dist ./dist
 
 # Create non-root user
-RUN addgroup -g 1001 -S nodejs && \
-    adduser -S nestjs -u 1001
+RUN addgroup --gid 1001 nodejs \
+    && adduser --uid 1001 --ingroup nodejs --disabled-password --gecos "" nestjs
 
 USER nestjs
 

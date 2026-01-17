@@ -4,7 +4,7 @@ import { SwaggerModule, DocumentBuilder } from '@nestjs/swagger';
 import { AppModule } from './app.module';
 import { GlobalExceptionFilter, LoggingInterceptor } from './common';
 import { NestExpressApplication } from '@nestjs/platform-express';
-import * as compression from 'compression';
+import compression from 'compression';
 import helmet from 'helmet';
 import * as path from 'path';
 
