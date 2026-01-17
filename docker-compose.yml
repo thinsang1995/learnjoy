@@ -1,0 +1,98 @@
+version: "3.8"
+
+services:
+  # PostgreSQL Database
+  postgres:
+    image: postgres:15-alpine
+    container_name: learnjoy-db
+    environment:
+      POSTGRES_DB: learnjoy
+      POSTGRES_USER: admin
+      POSTGRES_PASSWORD: ${DB_PASSWORD:-secret}
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U admin -d learnjoy"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - learnjoy-network
+
+  # NestJS Backend
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile.dev
+    container_name: learnjoy-backend
+    ports:
+      - "3001:3001"
+    environment:
+      NODE_ENV: development
+      DATABASE_URL: postgresql://admin:${DB_PASSWORD:-secret}@postgres:5432/learnjoy
+      GROQ_API_KEY: ${GROQ_API_KEY}
+      R2_ACCOUNT_ID: ${R2_ACCOUNT_ID}
+      R2_ACCESS_KEY_ID: ${R2_ACCESS_KEY_ID}
+      R2_SECRET_ACCESS_KEY: ${R2_SECRET_ACCESS_KEY}
+      R2_BUCKET_NAME: ${R2_BUCKET_NAME:-learnjoy-audio}
+      R2_PUBLIC_URL: ${R2_PUBLIC_URL}
+      WHISPER_SERVICE_URL: http://whisper:5000
+    volumes:
+      - ./backend/src:/app/src
+      - ./backend/prisma:/app/prisma
+      - ./uploads:/app/uploads
+      - backend_node_modules:/app/node_modules
+    depends_on:
+      postgres:
+        condition: service_healthy
+    networks:
+      - learnjoy-network
+
+  # Next.js Frontend
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile.dev
+    container_name: learnjoy-frontend
+    ports:
+      - "3000:3000"
+    environment:
+      NODE_ENV: development
+      NEXT_PUBLIC_API_URL: http://localhost:3001
+    volumes:
+      - ./frontend/src:/app/src
+      - ./frontend/public:/app/public
+      - frontend_node_modules:/app/node_modules
+    depends_on:
+      - backend
+    networks:
+      - learnjoy-network
+
+  # Whisper.cpp Service
+  whisper:
+    build:
+      context: ./whisper
+      dockerfile: ${WHISPER_DOCKERFILE:-Dockerfile}
+    container_name: learnjoy-whisper
+    ports:
+      - "5000:5000"
+    volumes:
+      - ./uploads:/uploads
+      - whisper_models:/models
+    environment:
+      WHISPER_MODEL: ${WHISPER_MODEL:-medium}
+      WHISPER_LANGUAGE: ja
+    networks:
+      - learnjoy-network
+
+volumes:
+  postgres_data:
+  whisper_models:
+  backend_node_modules:
+  frontend_node_modules:
+
+networks:
+  learnjoy-network:
+    driver: bridge

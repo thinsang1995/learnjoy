@@ -1,0 +1,74 @@
+// prisma/schema.prisma
+// LearnJoy Japanese Listening Platform - Database Schema
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+model Audio {
+  id             String    @id @default(uuid())
+  title          String
+  description    String?   @db.Text
+  topic          String    // daily, business, travel, culture
+  jlptLevel      String    @default("N3") @map("jlpt_level") // N2, N3
+  audioUrl       String    @map("audio_url")
+  duration       Int       // seconds
+  thumbnailColor String    @default("peach") @map("thumbnail_color") // peach, blue, mint, lilac
+  transcript     String?   @db.Text
+  transcriptJson Json?     @map("transcript_json") // Whisper segments with timestamps
+  isPublished    Boolean   @default(false) @map("is_published")
+  createdAt      DateTime  @default(now()) @map("created_at")
+  updatedAt      DateTime  @updatedAt @map("updated_at")
+  
+  quizzes        Quiz[]
+  
+  @@index([topic])
+  @@index([jlptLevel])
+  @@index([isPublished])
+  @@map("audio")
+}
+
+model Quiz {
+  id        String   @id @default(uuid())
+  audioId   String   @map("audio_id")
+  type      QuizType
+  question  String?  @db.Text
+  dataJson  Json     @map("data_json") // Quiz content (options, answer, etc.)
+  order     Int      @default(0)
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+  
+  audio     Audio    @relation(fields: [audioId], references: [id], onDelete: Cascade)
+  
+  @@index([audioId])
+  @@index([type])
+  @@map("quiz")
+}
+
+enum QuizType {
+  mcq      // Multiple choice question
+  fill     // Fill in the blank
+  reorder  // Sentence reordering
+}
+
+// Future: User tracking
+model UserProgress {
+  id            String   @id @default(uuid())
+  sessionId     String   @map("session_id") // Anonymous session
+  audioId       String   @map("audio_id")
+  quizId        String?  @map("quiz_id")
+  completed     Boolean  @default(false)
+  score         Int?     // Quiz score (0-100)
+  timeSpent     Int?     @map("time_spent") // Seconds
+  completedAt   DateTime? @map("completed_at")
+  createdAt     DateTime @default(now()) @map("created_at")
+  
+  @@index([sessionId])
+  @@index([audioId])
+  @@map("user_progress")
+}

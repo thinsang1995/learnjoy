@@ -1,0 +1,210 @@
+@import url('https://fonts.googleapis.com/css2?family=Fredoka:wght@300;400;500;600;700&family=Nunito:wght@300;400;500;600;700&display=swap');
+
+@import "tailwindcss/base";
+@import "tailwindcss/components";
+@import "tailwindcss/utilities";
+
+:root {
+  /* Primary */
+  --primary: #4F46E5;
+  --secondary: #818CF8;
+  --cta: #F97316;
+
+  /* Background */
+  --background: #EEF2FF;
+  --text: #1E1B4B;
+
+  /* Topic Colors */
+  --soft-peach: #FDBCB4;
+  --baby-blue: #ADD8E6;
+  --mint: #98FF98;
+  --lilac: #E6E6FA;
+}
+
+body {
+  font-family: 'Nunito', sans-serif;
+  background-color: var(--background);
+  color: var(--text);
+}
+
+h1, h2, h3, h4, h5, h6 {
+  font-family: 'Fredoka', sans-serif;
+}
+
+/* Claymorphism Base Styles */
+@layer components {
+  /* Base Clay Card */
+  .clay-card {
+    @apply bg-white/80 rounded-clay p-6;
+    box-shadow: 
+      8px 8px 16px rgba(0, 0, 0, 0.1),
+      -4px -4px 12px rgba(255, 255, 255, 0.8),
+      inset 2px 2px 4px rgba(255, 255, 255, 0.5);
+    backdrop-filter: blur(10px);
+    transition: all 0.3s ease;
+  }
+
+  .clay-card:hover {
+    transform: translateY(-4px);
+    box-shadow: 
+      12px 12px 24px rgba(0, 0, 0, 0.12),
+      -6px -6px 16px rgba(255, 255, 255, 0.9),
+      inset 2px 2px 4px rgba(255, 255, 255, 0.5);
+  }
+
+  /* Topic-colored Cards */
+  .clay-card-peach {
+    @apply clay-card;
+    background: linear-gradient(135deg, rgba(253, 188, 180, 0.8) 0%, rgba(255, 255, 255, 0.9) 100%);
+  }
+
+  .clay-card-blue {
+    @apply clay-card;
+    background: linear-gradient(135deg, rgba(173, 216, 230, 0.8) 0%, rgba(255, 255, 255, 0.9) 100%);
+  }
+
+  .clay-card-mint {
+    @apply clay-card;
+    background: linear-gradient(135deg, rgba(152, 255, 152, 0.6) 0%, rgba(255, 255, 255, 0.9) 100%);
+  }
+
+  .clay-card-lilac {
+    @apply clay-card;
+    background: linear-gradient(135deg, rgba(230, 230, 250, 0.8) 0%, rgba(255, 255, 255, 0.9) 100%);
+  }
+
+  .clay-card-primary {
+    @apply clay-card;
+    background: linear-gradient(135deg, rgba(79, 70, 229, 0.8) 0%, rgba(129, 140, 248, 0.9) 100%);
+    color: white;
+  }
+
+  .clay-card-secondary {
+    @apply clay-card;
+    background: linear-gradient(135deg, rgba(129, 140, 248, 0.8) 0%, rgba(255, 255, 255, 0.9) 100%);
+  }
+
+  /* Clay Button */
+  .clay-btn {
+    @apply px-6 py-3 rounded-2xl font-semibold;
+    background: linear-gradient(145deg, #ffffff, #e6e6e6);
+    box-shadow: 
+      6px 6px 12px rgba(0, 0, 0, 0.1),
+      -4px -4px 10px rgba(255, 255, 255, 0.9),
+      inset 1px 1px 2px rgba(255, 255, 255, 0.5);
+    transition: all 0.2s ease;
+  }
+
+  .clay-btn:hover {
+    transform: scale(1.02);
+  }
+
+  .clay-btn:active {
+    transform: scale(0.98);
+    box-shadow: 
+      inset 4px 4px 8px rgba(0, 0, 0, 0.1),
+      inset -2px -2px 6px rgba(255, 255, 255, 0.7);
+  }
+
+  .clay-btn-primary {
+    @apply clay-btn text-white;
+    background: linear-gradient(145deg, #5f57e7, #4238c7);
+  }
+
+  .clay-btn-cta {
+    @apply clay-btn text-white;
+    background: linear-gradient(145deg, #fa8c3d, #e66000);
+  }
+
+  /* Clay Input */
+  .clay-input {
+    @apply w-full px-4 py-3 rounded-xl border-none outline-none;
+    background: rgba(255, 255, 255, 0.7);
+    box-shadow: 
+      inset 4px 4px 8px rgba(0, 0, 0, 0.05),
+      inset -2px -2px 6px rgba(255, 255, 255, 0.7);
+  }
+
+  .clay-input:focus {
+    box-shadow: 
+      inset 4px 4px 8px rgba(0, 0, 0, 0.08),
+      inset -2px -2px 6px rgba(255, 255, 255, 0.5),
+      0 0 0 3px rgba(79, 70, 229, 0.2);
+  }
+
+  /* Progress Bar */
+  .clay-progress {
+    @apply h-3 rounded-full overflow-hidden;
+    background: rgba(255, 255, 255, 0.5);
+    box-shadow: inset 2px 2px 4px rgba(0, 0, 0, 0.1);
+  }
+
+  .clay-progress-bar {
+    @apply h-full rounded-full transition-all duration-500;
+    background: linear-gradient(90deg, var(--primary), var(--secondary));
+  }
+
+  /* Audio Player */
+  .clay-player {
+    @apply clay-card p-4;
+    background: linear-gradient(135deg, rgba(79, 70, 229, 0.1) 0%, rgba(255, 255, 255, 0.9) 100%);
+  }
+
+  /* Quiz Option */
+  .clay-option {
+    @apply p-4 rounded-xl cursor-pointer transition-all duration-200;
+    background: rgba(255, 255, 255, 0.7);
+    box-shadow: 
+      4px 4px 8px rgba(0, 0, 0, 0.05),
+      -2px -2px 6px rgba(255, 255, 255, 0.8);
+  }
+
+  .clay-option:hover {
+    background: rgba(255, 255, 255, 0.9);
+    transform: translateX(4px);
+  }
+
+  .clay-option.selected {
+    background: linear-gradient(135deg, rgba(79, 70, 229, 0.2) 0%, rgba(129, 140, 248, 0.2) 100%);
+    box-shadow: 
+      inset 2px 2px 4px rgba(0, 0, 0, 0.05),
+      inset -1px -1px 3px rgba(255, 255, 255, 0.5);
+  }
+
+  .clay-option.correct {
+    background: linear-gradient(135deg, rgba(152, 255, 152, 0.5) 0%, rgba(255, 255, 255, 0.9) 100%);
+  }
+
+  .clay-option.incorrect {
+    background: linear-gradient(135deg, rgba(253, 188, 180, 0.5) 0%, rgba(255, 255, 255, 0.9) 100%);
+  }
+
+  /* Navbar */
+  .clay-navbar {
+    @apply fixed top-4 left-1/2 transform -translate-x-1/2 px-8 py-4 rounded-full z-50;
+    background: rgba(255, 255, 255, 0.9);
+    box-shadow: 
+      8px 8px 20px rgba(0, 0, 0, 0.1),
+      -4px -4px 12px rgba(255, 255, 255, 0.8);
+    backdrop-filter: blur(10px);
+  }
+}
+
+/* Animations */
+@keyframes float {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-10px); }
+}
+
+@keyframes pulse-soft {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.8; }
+}
+
+.animate-float {
+  animation: float 3s ease-in-out infinite;
+}
+
+.animate-pulse-soft {
+  animation: pulse-soft 2s ease-in-out infinite;
+}

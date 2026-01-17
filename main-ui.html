@@ -1,0 +1,799 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>LearnJoy - Playful Learning Platform</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@400;500;600;700&family=Nunito:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        heading: ['Fredoka', 'sans-serif'],
+                        body: ['Nunito', 'sans-serif'],
+                    },
+                    colors: {
+                        primary: '#4F46E5',
+                        secondary: '#818CF8',
+                        cta: '#F97316',
+                        background: '#EEF2FF',
+                        text: '#1E1B4B',
+                        border: '#C7D2FE',
+                        'soft-peach': '#FDBCB4',
+                        'baby-blue': '#ADD8E6',
+                        'mint': '#98FF98',
+                        'lilac': '#E6E6FA',
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        * {
+            font-family: 'Nunito', sans-serif;
+        }
+        
+        h1, h2, h3, h4, h5, h6 {
+            font-family: 'Fredoka', sans-serif;
+        }
+
+        /* Claymorphism Card Styles */
+        .clay-card {
+            background: linear-gradient(145deg, #ffffff, #f5f5f5);
+            border-radius: 24px;
+            border: 3px solid rgba(0, 0, 0, 0.08);
+            box-shadow: 
+                8px 8px 16px rgba(0, 0, 0, 0.1),
+                -4px -4px 12px rgba(255, 255, 255, 0.9),
+                inset 2px 2px 4px rgba(255, 255, 255, 0.5);
+            transition: all 200ms ease-out;
+        }
+
+        .clay-card:hover {
+            transform: translateY(-4px);
+            box-shadow: 
+                12px 12px 24px rgba(0, 0, 0, 0.12),
+                -6px -6px 16px rgba(255, 255, 255, 1),
+                inset 2px 2px 4px rgba(255, 255, 255, 0.5);
+        }
+
+        .clay-card-peach {
+            background: linear-gradient(145deg, #FDBCB4, #fca89e);
+        }
+
+        .clay-card-blue {
+            background: linear-gradient(145deg, #ADD8E6, #9bc7dc);
+        }
+
+        .clay-card-mint {
+            background: linear-gradient(145deg, #98FF98, #85e685);
+        }
+
+        .clay-card-lilac {
+            background: linear-gradient(145deg, #E6E6FA, #d1d1ed);
+        }
+
+        .clay-card-primary {
+            background: linear-gradient(145deg, #4F46E5, #4338ca);
+        }
+
+        .clay-card-secondary {
+            background: linear-gradient(145deg, #818CF8, #6366f1);
+        }
+
+        /* Soft Press Animation */
+        .clay-btn {
+            transition: all 200ms ease-out;
+        }
+
+        .clay-btn:active {
+            transform: scale(0.98);
+            box-shadow: 
+                4px 4px 8px rgba(0, 0, 0, 0.1),
+                -2px -2px 6px rgba(255, 255, 255, 0.9),
+                inset 4px 4px 8px rgba(0, 0, 0, 0.1);
+        }
+
+        /* Progress Bar Animation */
+        .progress-bar {
+            transition: width 1s ease-out;
+        }
+
+        /* Reduced Motion */
+        @media (prefers-reduced-motion: reduce) {
+            .clay-card,
+            .clay-btn,
+            .progress-bar {
+                transition: none;
+            }
+            
+            .clay-card:hover {
+                transform: none;
+            }
+        }
+
+        /* Smooth Scroll */
+        html {
+            scroll-behavior: smooth;
+        }
+    </style>
+</head>
+<body class="bg-background font-body">
+    <!-- Floating Navbar -->
+    <nav class="fixed top-4 left-4 right-4 z-50">
+        <div class="clay-card max-w-7xl mx-auto px-6 py-4">
+            <div class="flex items-center justify-between">
+                <div class="flex items-center space-x-2">
+                    <svg class="w-8 h-8 text-primary" fill="currentColor" viewBox="0 0 24 24">
+                        <path d="M12 2L2 7v10c0 5.55 3.84 10.74 9 12 5.16-1.26 9-6.45 9-12V7l-10-5zm0 2.18l8 4V17c0 4.51-3.08 8.71-8 9.92-4.92-1.21-8-5.41-8-9.92V8.18l8-4zM11 7v2H9v2h2v2h2v-2h2V9h-2V7h-2z"/>
+                    </svg>
+                    <span class="text-2xl font-heading font-bold text-primary">LearnJoy</span>
+                </div>
+                <div class="hidden md:flex items-center space-x-8">
+                    <a href="#courses" class="text-text font-medium hover:text-primary transition-colors duration-200 cursor-pointer">Courses</a>
+                    <a href="#progress" class="text-text font-medium hover:text-primary transition-colors duration-200 cursor-pointer">Progress</a>
+                    <a href="#testimonials" class="text-text font-medium hover:text-primary transition-colors duration-200 cursor-pointer">Reviews</a>
+                    <button class="clay-card clay-card-primary clay-btn px-6 py-2 text-white font-semibold cursor-pointer">
+                        Get Started
+                    </button>
+                </div>
+                <button class="md:hidden text-text cursor-pointer">
+                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"/>
+                    </svg>
+                </button>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Hero Section -->
+    <section class="pt-32 pb-20 px-4 sm:px-6 lg:px-8">
+        <div class="max-w-7xl mx-auto">
+            <div class="grid md:grid-cols-2 gap-12 items-center">
+                <div class="space-y-6">
+                    <div class="inline-block clay-card clay-card-peach px-4 py-2">
+                        <span class="text-sm font-semibold text-text">🎉 Join 50,000+ Happy Learners</span>
+                    </div>
+                    <h1 class="text-5xl lg:text-6xl font-heading font-bold text-text leading-tight">
+                        Learn Anything, <span class="text-primary">Joyfully</span>
+                    </h1>
+                    <p class="text-lg text-gray-700 leading-relaxed">
+                        Transform your skills with interactive courses, gamified learning, and a supportive community. Start your learning adventure today!
+                    </p>
+                    <div class="flex flex-col sm:flex-row gap-4">
+                        <button class="clay-card clay-card-primary clay-btn px-8 py-4 text-white font-semibold text-lg cursor-pointer">
+                            Start Learning Free
+                        </button>
+                        <button class="clay-card clay-btn px-8 py-4 text-text font-semibold text-lg cursor-pointer">
+                            Watch Demo
+                        </button>
+                    </div>
+                    <div class="flex items-center space-x-6 pt-4">
+                        <div class="flex -space-x-2">
+                            <div class="w-10 h-10 rounded-full clay-card-peach border-2 border-white"></div>
+                            <div class="w-10 h-10 rounded-full clay-card-blue border-2 border-white"></div>
+                            <div class="w-10 h-10 rounded-full clay-card-mint border-2 border-white"></div>
+                            <div class="w-10 h-10 rounded-full clay-card-lilac border-2 border-white"></div>
+                        </div>
+                        <div>
+                            <p class="text-sm font-semibold text-text">4.9/5 from 2,400+ reviews</p>
+                            <div class="flex space-x-1">
+                                <span class="text-yellow-400">★★★★★</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="grid grid-cols-2 gap-4">
+                    <div class="clay-card clay-card-peach p-6 space-y-3 cursor-pointer">
+                        <svg class="w-12 h-12 text-white" fill="currentColor" viewBox="0 0 24 24">
+                            <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z"/>
+                        </svg>
+                        <h3 class="font-heading font-bold text-xl text-white">500+</h3>
+                        <p class="text-white text-sm">Expert Courses</p>
+                    </div>
+                    <div class="clay-card clay-card-blue p-6 space-y-3 cursor-pointer mt-8">
+                        <svg class="w-12 h-12 text-white" fill="currentColor" viewBox="0 0 24 24">
+                            <path d="M16 11c1.66 0 2.99-1.34 2.99-3S17.66 5 16 5c-1.66 0-3 1.34-3 3s1.34 3 3 3zm-8 0c1.66 0 2.99-1.34 2.99-3S9.66 5 8 5C6.34 5 5 6.34 5 8s1.34 3 3 3zm0 2c-2.33 0-7 1.17-7 3.5V19h14v-2.5c0-2.33-4.67-3.5-7-3.5zm8 0c-.29 0-.62.02-.97.05 1.16.84 1.97 1.97 1.97 3.45V19h6v-2.5c0-2.33-4.67-3.5-7-3.5z"/>
+                        </svg>
+                        <h3 class="font-heading font-bold text-xl text-white">50K+</h3>
+                        <p class="text-white text-sm">Active Students</p>
+                    </div>
+                    <div class="clay-card clay-card-mint p-6 space-y-3 cursor-pointer">
+                        <svg class="w-12 h-12 text-white" fill="currentColor" viewBox="0 0 24 24">
+                            <path d="M12 17.27L18.18 21l-1.64-7.03L22 9.24l-7.19-.61L12 2 9.19 8.63 2 9.24l5.46 4.73L5.82 21z"/>
+                        </svg>
+                        <h3 class="font-heading font-bold text-xl text-white">4.9/5</h3>
+                        <p class="text-white text-sm">Average Rating</p>
+                    </div>
+                    <div class="clay-card clay-card-lilac p-6 space-y-3 cursor-pointer mt-8">
+                        <svg class="w-12 h-12 text-white" fill="currentColor" viewBox="0 0 24 24">
+                            <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z"/>
+                        </svg>
+                        <h3 class="font-heading font-bold text-xl text-white">95%</h3>
+                        <p class="text-white text-sm">Completion Rate</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Course Catalog Preview -->
+    <section id="courses" class="py-20 px-4 sm:px-6 lg:px-8">
+        <div class="max-w-7xl mx-auto">
+            <div class="text-center mb-12">
+                <h2 class="text-4xl lg:text-5xl font-heading font-bold text-text mb-4">
+                    Popular Courses
+                </h2>
+                <p class="text-lg text-gray-700">
+                    Explore our most loved courses designed for every skill level
+                </p>
+            </div>
+
+            <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
+                <!-- Course Card 1 -->
+                <div class="clay-card p-6 space-y-4 cursor-pointer">
+                    <div class="clay-card-primary p-4 rounded-2xl">
+                        <svg class="w-16 h-16 text-white mx-auto" fill="currentColor" viewBox="0 0 24 24">
+                            <path d="M9.4 16.6L4.8 12l4.6-4.6L8 6l-6 6 6 6 1.4-1.4zm5.2 0l4.6-4.6-4.6-4.6L16 6l6 6-6 6-1.4-1.4z"/>
+                        </svg>
+                    </div>
+                    <div>
+                        <div class="flex items-center justify-between mb-2">
+                            <span class="clay-card-peach px-3 py-1 rounded-full text-xs font-semibold text-white">Beginner</span>
+                            <span class="text-sm font-semibold text-gray-700">12 hours</span>
+                        </div>
+                        <h3 class="font-heading font-bold text-xl text-text mb-2">Web Development Fundamentals</h3>
+                        <p class="text-gray-700 text-sm mb-4">Master HTML, CSS, and JavaScript basics with hands-on projects</p>
+                        <div class="flex items-center justify-between">
+                            <div class="flex items-center space-x-2">
+                                <div class="flex -space-x-2">
+                                    <div class="w-6 h-6 rounded-full clay-card-peach border-2 border-white"></div>
+                                    <div class="w-6 h-6 rounded-full clay-card-blue border-2 border-white"></div>
+                                </div>
+                                <span class="text-xs text-gray-600">3.2K students</span>
+                            </div>
+                            <span class="text-2xl font-bold text-primary">$49</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Course Card 2 -->
+                <div class="clay-card p-6 space-y-4 cursor-pointer">
+                    <div class="clay-card-secondary p-4 rounded-2xl">
+                        <svg class="w-16 h-16 text-white mx-auto" fill="currentColor" viewBox="0 0 24 24">
+                            <path d="M20 4H4c-1.1 0-1.99.9-1.99 2L2 18c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2zm-5 14H4v-4h11v4zm0-5H4V9h11v4zm5 5h-4V9h4v9z"/>
+                        </svg>
+                    </div>
+                    <div>
+                        <div class="flex items-center justify-between mb-2">
+                            <span class="clay-card-mint px-3 py-1 rounded-full text-xs font-semibold text-white">Intermediate</span>
+                            <span class="text-sm font-semibold text-gray-700">18 hours</span>
+                        </div>
+                        <h3 class="font-heading font-bold text-xl text-text mb-2">UI/UX Design Mastery</h3>
+                        <p class="text-gray-700 text-sm mb-4">Create stunning user experiences with Figma and design thinking</p>
+                        <div class="flex items-center justify-between">
+                            <div class="flex items-center space-x-2">
+                                <div class="flex -space-x-2">
+                                    <div class="w-6 h-6 rounded-full clay-card-mint border-2 border-white"></div>
+                                    <div class="w-6 h-6 rounded-full clay-card-lilac border-2 border-white"></div>
+                                </div>
+                                <span class="text-xs text-gray-600">2.8K students</span>
+                            </div>
+                            <span class="text-2xl font-bold text-primary">$79</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Course Card 3 -->
+                <div class="clay-card p-6 space-y-4 cursor-pointer">
+                    <div class="clay-card-peach p-4 rounded-2xl">
+                        <svg class="w-16 h-16 text-white mx-auto" fill="currentColor" viewBox="0 0 24 24">
+                            <path d="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zM9 17H7v-7h2v7zm4 0h-2V7h2v10zm4 0h-2v-4h2v4z"/>
+                        </svg>
+                    </div>
+                    <div>
+                        <div class="flex items-center justify-between mb-2">
+                            <span class="clay-card-blue px-3 py-1 rounded-full text-xs font-semibold text-white">Advanced</span>
+                            <span class="text-sm font-semibold text-gray-700">24 hours</span>
+                        </div>
+                        <h3 class="font-heading font-bold text-xl text-text mb-2">Data Science with Python</h3>
+                        <p class="text-gray-700 text-sm mb-4">Analyze data, create visualizations, and build ML models</p>
+                        <div class="flex items-center justify-between">
+                            <div class="flex items-center space-x-2">
+                                <div class="flex -space-x-2">
+                                    <div class="w-6 h-6 rounded-full clay-card-blue border-2 border-white"></div>
+                                    <div class="w-6 h-6 rounded-full clay-card-mint border-2 border-white"></div>
+                                </div>
+                                <span class="text-xs text-gray-600">4.1K students</span>
+                            </div>
+                            <span class="text-2xl font-bold text-primary">$99</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Course Card 4 -->
+                <div class="clay-card p-6 space-y-4 cursor-pointer">
+                    <div class="clay-card-mint p-4 rounded-2xl">
+                        <svg class="w-16 h-16 text-white mx-auto" fill="currentColor" viewBox="0 0 24 24">
+                            <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-1 17.93c-3.95-.49-7-3.85-7-7.93 0-.62.08-1.21.21-1.79L9 15v1c0 1.1.9 2 2 2v1.93zm6.9-2.54c-.26-.81-1-1.39-1.9-1.39h-1v-3c0-.55-.45-1-1-1H8v-2h2c.55 0 1-.45 1-1V7h2c1.1 0 2-.9 2-2v-.41c2.93 1.19 5 4.06 5 7.41 0 2.08-.8 3.97-2.1 5.39z"/>
+                        </svg>
+                    </div>
+                    <div>
+                        <div class="flex items-center justify-between mb-2">
+                            <span class="clay-card-peach px-3 py-1 rounded-full text-xs font-semibold text-white">Beginner</span>
+                            <span class="text-sm font-semibold text-gray-700">10 hours</span>
+                        </div>
+                        <h3 class="font-heading font-bold text-xl text-text mb-2">Digital Marketing Essentials</h3>
+                        <p class="text-gray-700 text-sm mb-4">Learn SEO, social media, and content marketing strategies</p>
+                        <div class="flex items-center justify-between">
+                            <div class="flex items-center space-x-2">
+                                <div class="flex -space-x-2">
+                                    <div class="w-6 h-6 rounded-full clay-card-peach border-2 border-white"></div>
+                                    <div class="w-6 h-6 rounded-full clay-card-mint border-2 border-white"></div>
+                                </div>
+                                <span class="text-xs text-gray-600">5.6K students</span>
+                            </div>
+                            <span class="text-2xl font-bold text-primary">$59</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Course Card 5 -->
+                <div class="clay-card p-6 space-y-4 cursor-pointer">
+                    <div class="clay-card-lilac p-4 rounded-2xl">
+                        <svg class="w-16 h-16 text-white mx-auto" fill="currentColor" viewBox="0 0 24 24">
+                            <path d="M21 3H3c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h5v2h8v-2h5c1.1 0 1.99-.9 1.99-2L23 5c0-1.1-.9-2-2-2zm0 14H3V5h18v12z"/>
+                        </svg>
+                    </div>
+                    <div>
+                        <div class="flex items-center justify-between mb-2">
+                            <span class="clay-card-mint px-3 py-1 rounded-full text-xs font-semibold text-white">Intermediate</span>
+                            <span class="text-sm font-semibold text-gray-700">15 hours</span>
+                        </div>
+                        <h3 class="font-heading font-bold text-xl text-text mb-2">Mobile App Development</h3>
+                        <p class="text-gray-700 text-sm mb-4">Build iOS and Android apps with React Native</p>
+                        <div class="flex items-center justify-between">
+                            <div class="flex items-center space-x-2">
+                                <div class="flex -space-x-2">
+                                    <div class="w-6 h-6 rounded-full clay-card-lilac border-2 border-white"></div>
+                                    <div class="w-6 h-6 rounded-full clay-card-blue border-2 border-white"></div>
+                                </div>
+                                <span class="text-xs text-gray-600">3.9K students</span>
+                            </div>
+                            <span class="text-2xl font-bold text-primary">$89</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Course Card 6 -->
+                <div class="clay-card p-6 space-y-4 cursor-pointer">
+                    <div class="clay-card-blue p-4 rounded-2xl">
+                        <svg class="w-16 h-16 text-white mx-auto" fill="currentColor" viewBox="0 0 24 24">
+                            <path d="M12 1L3 5v6c0 5.55 3.84 10.74 9 12 5.16-1.26 9-6.45 9-12V5l-9-4zm0 10.99h7c-.53 4.12-3.28 7.79-7 8.94V12H5V6.3l7-3.11v8.8z"/>
+                        </svg>
+                    </div>
+                    <div>
+                        <div class="flex items-center justify-between mb-2">
+                            <span class="clay-card-blue px-3 py-1 rounded-full text-xs font-semibold text-white">Advanced</span>
+                            <span class="text-sm font-semibold text-gray-700">20 hours</span>
+                        </div>
+                        <h3 class="font-heading font-bold text-xl text-text mb-2">Cybersecurity Fundamentals</h3>
+                        <p class="text-gray-700 text-sm mb-4">Protect systems and data from cyber threats</p>
+                        <div class="flex items-center justify-between">
+                            <div class="flex items-center space-x-2">
+                                <div class="flex -space-x-2">
+                                    <div class="w-6 h-6 rounded-full clay-card-blue border-2 border-white"></div>
+                                    <div class="w-6 h-6 rounded-full clay-card-peach border-2 border-white"></div>
+                                </div>
+                                <span class="text-xs text-gray-600">2.4K students</span>
+                            </div>
+                            <span class="text-2xl font-bold text-primary">$109</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="text-center mt-12">
+                <button class="clay-card clay-btn px-8 py-4 text-text font-semibold text-lg cursor-pointer">
+                    View All Courses
+                </button>
+            </div>
+        </div>
+    </section>
+
+    <!-- Progress Tracking Demo -->
+    <section id="progress" class="py-20 px-4 sm:px-6 lg:px-8 bg-white">
+        <div class="max-w-7xl mx-auto">
+            <div class="text-center mb-12">
+                <h2 class="text-4xl lg:text-5xl font-heading font-bold text-text mb-4">
+                    Track Your Learning Journey
+                </h2>
+                <p class="text-lg text-gray-700">
+                    Visual progress tracking keeps you motivated and on track
+                </p>
+            </div>
+
+            <div class="grid md:grid-cols-2 gap-8 items-center">
+                <div class="space-y-6">
+                    <!-- Progress Card 1 -->
+                    <div class="clay-card p-6 space-y-4">
+                        <div class="flex items-center justify-between">
+                            <div class="flex items-center space-x-3">
+                                <div class="clay-card-primary p-3 rounded-2xl">
+                                    <svg class="w-6 h-6 text-white" fill="currentColor" viewBox="0 0 24 24">
+                                        <path d="M9.4 16.6L4.8 12l4.6-4.6L8 6l-6 6 6 6 1.4-1.4zm5.2 0l4.6-4.6-4.6-4.6L16 6l6 6-6 6-1.4-1.4z"/>
+                                    </svg>
+                                </div>
+                                <div>
+                                    <h4 class="font-heading font-bold text-lg text-text">Web Development</h4>
+                                    <p class="text-sm text-gray-600">8 of 12 lessons completed</p>
+                                </div>
+                            </div>
+                            <span class="text-2xl font-bold text-primary">67%</span>
+                        </div>
+                        <div class="w-full bg-gray-200 rounded-full h-3 overflow-hidden">
+                            <div class="progress-bar clay-card-primary h-full rounded-full" style="width: 67%"></div>
+                        </div>
+                    </div>
+
+                    <!-- Progress Card 2 -->
+                    <div class="clay-card p-6 space-y-4">
+                        <div class="flex items-center justify-between">
+                            <div class="flex items-center space-x-3">
+                                <div class="clay-card-secondary p-3 rounded-2xl">
+                                    <svg class="w-6 h-6 text-white" fill="currentColor" viewBox="0 0 24 24">
+                                        <path d="M20 4H4c-1.1 0-1.99.9-1.99 2L2 18c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2zm-5 14H4v-4h11v4zm0-5H4V9h11v4zm5 5h-4V9h4v9z"/>
+                                    </svg>
+                                </div>
+                                <div>
+                                    <h4 class="font-heading font-bold text-lg text-text">UI/UX Design</h4>
+                                    <p class="text-sm text-gray-600">14 of 18 lessons completed</p>
+                                </div>
+                            </div>
+                            <span class="text-2xl font-bold text-secondary">78%</span>
+                        </div>
+                        <div class="w-full bg-gray-200 rounded-full h-3 overflow-hidden">
+                            <div class="progress-bar clay-card-secondary h-full rounded-full" style="width: 78%"></div>
+                        </div>
+                    </div>
+
+                    <!-- Progress Card 3 -->
+                    <div class="clay-card p-6 space-y-4">
+                        <div class="flex items-center justify-between">
+                            <div class="flex items-center space-x-3">
+                                <div class="clay-card-mint p-3 rounded-2xl">
+                                    <svg class="w-6 h-6 text-white" fill="currentColor" viewBox="0 0 24 24">
+                                        <path d="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zM9 17H7v-7h2v7zm4 0h-2V7h2v10zm4 0h-2v-4h2v4z"/>
+                                    </svg>
+                                </div>
+                                <div>
+                                    <h4 class="font-heading font-bold text-lg text-text">Data Science</h4>
+                                    <p class="text-sm text-gray-600">4 of 24 lessons completed</p>
+                                </div>
+                            </div>
+                            <span class="text-2xl font-bold text-mint">17%</span>
+                        </div>
+                        <div class="w-full bg-gray-200 rounded-full h-3 overflow-hidden">
+                            <div class="progress-bar clay-card-mint h-full rounded-full" style="width: 17%"></div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="clay-card p-8 space-y-6">
+                    <h3 class="font-heading font-bold text-2xl text-text">Weekly Learning Stats</h3>
+                    
+                    <div class="space-y-4">
+                        <div class="flex items-center justify-between">
+                            <span class="text-gray-700 font-medium">Monday</span>
+                            <div class="flex space-x-1">
+                                <div class="w-3 h-8 clay-card-primary rounded"></div>
+                                <div class="w-3 h-8 clay-card-primary rounded"></div>
+                                <div class="w-3 h-8 clay-card-primary rounded"></div>
+                            </div>
+                        </div>
+                        <div class="flex items-center justify-between">
+                            <span class="text-gray-700 font-medium">Tuesday</span>
+                            <div class="flex space-x-1">
+                                <div class="w-3 h-8 clay-card-secondary rounded"></div>
+                                <div class="w-3 h-8 clay-card-secondary rounded"></div>
+                                <div class="w-3 h-8 clay-card-secondary rounded"></div>
+                                <div class="w-3 h-8 clay-card-secondary rounded"></div>
+                                <div class="w-3 h-8 clay-card-secondary rounded"></div>
+                            </div>
+                        </div>
+                        <div class="flex items-center justify-between">
+                            <span class="text-gray-700 font-medium">Wednesday</span>
+                            <div class="flex space-x-1">
+                                <div class="w-3 h-8 clay-card-mint rounded"></div>
+                                <div class="w-3 h-8 clay-card-mint rounded"></div>
+                            </div>
+                        </div>
+                        <div class="flex items-center justify-between">
+                            <span class="text-gray-700 font-medium">Thursday</span>
+                            <div class="flex space-x-1">
+                                <div class="w-3 h-8 clay-card-peach rounded"></div>
+                                <div class="w-3 h-8 clay-card-peach rounded"></div>
+                                <div class="w-3 h-8 clay-card-peach rounded"></div>
+                                <div class="w-3 h-8 clay-card-peach rounded"></div>
+                            </div>
+                        </div>
+                        <div class="flex items-center justify-between">
+                            <span class="text-gray-700 font-medium">Friday</span>
+                            <div class="flex space-x-1">
+                                <div class="w-3 h-8 clay-card-lilac rounded"></div>
+                                <div class="w-3 h-8 clay-card-lilac rounded"></div>
+                                <div class="w-3 h-8 clay-card-lilac rounded"></div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="grid grid-cols-3 gap-4 pt-4 border-t border-gray-200">
+                        <div class="text-center">
+                            <p class="text-3xl font-bold text-primary font-heading">17</p>
+                            <p class="text-sm text-gray-600">Lessons</p>
+                        </div>
+                        <div class="text-center">
+                            <p class="text-3xl font-bold text-secondary font-heading">42h</p>
+                            <p class="text-sm text-gray-600">This Week</p>
+                        </div>
+                        <div class="text-center">
+                            <p class="text-3xl font-bold text-mint font-heading">12</p>
+                            <p class="text-sm text-gray-600">Streak Days</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Student Testimonials -->
+    <section id="testimonials" class="py-20 px-4 sm:px-6 lg:px-8">
+        <div class="max-w-7xl mx-auto">
+            <div class="text-center mb-12">
+                <h2 class="text-4xl lg:text-5xl font-heading font-bold text-text mb-4">
+                    Loved by Students Worldwide
+                </h2>
+                <p class="text-lg text-gray-700">
+                    Join thousands of happy learners transforming their careers
+                </p>
+            </div>
+
+            <div class="grid md:grid-cols-3 gap-8">
+                <!-- Testimonial 1 -->
+                <div class="clay-card p-6 space-y-4 cursor-pointer">
+                    <div class="flex space-x-1 text-yellow-400 text-xl">
+                        ★★★★★
+                    </div>
+                    <p class="text-gray-700 italic">
+                        "LearnJoy completely changed my career! The courses are engaging, and the progress tracking keeps me motivated every day."
+                    </p>
+                    <div class="flex items-center space-x-3 pt-4">
+                        <div class="w-12 h-12 clay-card-peach rounded-full flex items-center justify-center">
+                            <span class="text-white font-bold text-lg">SR</span>
+                        </div>
+                        <div>
+                            <p class="font-semibold text-text">Sarah Rodriguez</p>
+                            <p class="text-sm text-gray-600">Full Stack Developer</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Testimonial 2 -->
+                <div class="clay-card p-6 space-y-4 cursor-pointer">
+                    <div class="flex space-x-1 text-yellow-400 text-xl">
+                        ★★★★★
+                    </div>
+                    <p class="text-gray-700 italic">
+                        "The gamified learning approach makes studying fun! I've completed 5 courses in 3 months and landed my dream job."
+                    </p>
+                    <div class="flex items-center space-x-3 pt-4">
+                        <div class="w-12 h-12 clay-card-blue rounded-full flex items-center justify-center">
+                            <span class="text-white font-bold text-lg">MC</span>
+                        </div>
+                        <div>
+                            <p class="font-semibold text-text">Michael Chen</p>
+                            <p class="text-sm text-gray-600">UX Designer</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Testimonial 3 -->
+                <div class="clay-card p-6 space-y-4 cursor-pointer">
+                    <div class="flex space-x-1 text-yellow-400 text-xl">
+                        ★★★★★
+                    </div>
+                    <p class="text-gray-700 italic">
+                        "Best learning platform I've ever used! The instructors are amazing and the community is so supportive."
+                    </p>
+                    <div class="flex items-center space-x-3 pt-4">
+                        <div class="w-12 h-12 clay-card-mint rounded-full flex items-center justify-center">
+                            <span class="text-white font-bold text-lg">EP</span>
+                        </div>
+                        <div>
+                            <p class="font-semibold text-text">Emily Parker</p>
+                            <p class="text-sm text-gray-600">Data Analyst</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Testimonial 4 -->
+                <div class="clay-card p-6 space-y-4 cursor-pointer">
+                    <div class="flex space-x-1 text-yellow-400 text-xl">
+                        ★★★★★
+                    </div>
+                    <p class="text-gray-700 italic">
+                        "I was skeptical at first, but LearnJoy exceeded all my expectations. The hands-on projects are incredibly valuable."
+                    </p>
+                    <div class="flex items-center space-x-3 pt-4">
+                        <div class="w-12 h-12 clay-card-lilac rounded-full flex items-center justify-center">
+                            <span class="text-white font-bold text-lg">DJ</span>
+                        </div>
+                        <div>
+                            <p class="font-semibold text-text">David Johnson</p>
+                            <p class="text-sm text-gray-600">Mobile Developer</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Testimonial 5 -->
+                <div class="clay-card p-6 space-y-4 cursor-pointer">
+                    <div class="flex space-x-1 text-yellow-400 text-xl">
+                        ★★★★★
+                    </div>
+                    <p class="text-gray-700 italic">
+                        "The perfect blend of theory and practice. I can immediately apply what I learn to real-world projects."
+                    </p>
+                    <div class="flex items-center space-x-3 pt-4">
+                        <div class="w-12 h-12 clay-card-primary rounded-full flex items-center justify-center">
+                            <span class="text-white font-bold text-lg">LK</span>
+                        </div>
+                        <div>
+                            <p class="font-semibold text-text">Lisa Kim</p>
+                            <p class="text-sm text-gray-600">Product Manager</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Testimonial 6 -->
+                <div class="clay-card p-6 space-y-4 cursor-pointer">
+                    <div class="flex space-x-1 text-yellow-400 text-xl">
+                        ★★★★★
+                    </div>
+                    <p class="text-gray-700 italic">
+                        "LearnJoy made learning enjoyable again! The interface is beautiful and the content is top-notch."
+                    </p>
+                    <div class="flex items-center space-x-3 pt-4">
+                        <div class="w-12 h-12 clay-card-secondary rounded-full flex items-center justify-center">
+                            <span class="text-white font-bold text-lg">TA</span>
+                        </div>
+                        <div>
+                            <p class="font-semibold text-text">Tom Anderson</p>
+                            <p class="text-sm text-gray-600">Marketing Specialist</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Enrollment CTA -->
+    <section class="py-20 px-4 sm:px-6 lg:px-8">
+        <div class="max-w-5xl mx-auto">
+            <div class="clay-card clay-card-primary p-12 text-center space-y-6">
+                <h2 class="text-4xl lg:text-5xl font-heading font-bold text-white mb-4">
+                    Start Your Learning Journey Today
+                </h2>
+                <p class="text-xl text-white/90 max-w-2xl mx-auto">
+                    Join 50,000+ students already learning and growing with LearnJoy. Get started with a 7-day free trial!
+                </p>
+                
+                <div class="flex flex-col sm:flex-row gap-4 justify-center pt-4">
+                    <button class="clay-card clay-btn bg-white px-8 py-4 text-primary font-semibold text-lg cursor-pointer">
+                        Start Free Trial
+                    </button>
+                    <button class="clay-card clay-card-secondary clay-btn px-8 py-4 text-white font-semibold text-lg cursor-pointer">
+                        View Pricing
+                    </button>
+                </div>
+
+                <div class="flex items-center justify-center space-x-8 pt-8 border-t border-white/20">
+                    <div class="text-center">
+                        <p class="text-3xl font-bold text-white font-heading">500+</p>
+                        <p class="text-white/80 text-sm">Courses</p>
+                    </div>
+                    <div class="text-center">
+                        <p class="text-3xl font-bold text-white font-heading">50K+</p>
+                        <p class="text-white/80 text-sm">Students</p>
+                    </div>
+                    <div class="text-center">
+                        <p class="text-3xl font-bold text-white font-heading">4.9★</p>
+                        <p class="text-white/80 text-sm">Rating</p>
+                    </div>
+                </div>
+
+                <p class="text-white/70 text-sm pt-4">
+                    No credit card required • Cancel anytime • Money-back guarantee
+                </p>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="py-12 px-4 sm:px-6 lg:px-8 bg-white border-t border-gray-200">
+        <div class="max-w-7xl mx-auto">
+            <div class="grid md:grid-cols-4 gap-8 mb-8">
+                <div class="space-y-4">
+                    <div class="flex items-center space-x-2">
+                        <svg class="w-8 h-8 text-primary" fill="currentColor" viewBox="0 0 24 24">
+                            <path d="M12 2L2 7v10c0 5.55 3.84 10.74 9 12 5.16-1.26 9-6.45 9-12V7l-10-5zm0 2.18l8 4V17c0 4.51-3.08 8.71-8 9.92-4.92-1.21-8-5.41-8-9.92V8.18l8-4zM11 7v2H9v2h2v2h2v-2h2V9h-2V7h-2z"/>
+                        </svg>
+                        <span class="text-2xl font-heading font-bold text-primary">LearnJoy</span>
+                    </div>
+                    <p class="text-gray-600 text-sm">
+                        Empowering learners worldwide with engaging, interactive courses.
+                    </p>
+                </div>
+                
+                <div>
+                    <h4 class="font-heading font-bold text-text mb-4">Platform</h4>
+                    <ul class="space-y-2">
+                        <li><a href="#" class="text-gray-600 hover:text-primary transition-colors duration-200 cursor-pointer">Browse Courses</a></li>
+                        <li><a href="#" class="text-gray-600 hover:text-primary transition-colors duration-200 cursor-pointer">Become Instructor</a></li>
+                        <li><a href="#" class="text-gray-600 hover:text-primary transition-colors duration-200 cursor-pointer">Pricing</a></li>
+                        <li><a href="#" class="text-gray-600 hover:text-primary transition-colors duration-200 cursor-pointer">Free Trial</a></li>
+                    </ul>
+                </div>
+                
+                <div>
+                    <h4 class="font-heading font-bold text-text mb-4">Company</h4>
+                    <ul class="space-y-2">
+                        <li><a href="#" class="text-gray-600 hover:text-primary transition-colors duration-200 cursor-pointer">About Us</a></li>
+                        <li><a href="#" class="text-gray-600 hover:text-primary transition-colors duration-200 cursor-pointer">Careers</a></li>
+                        <li><a href="#" class="text-gray-600 hover:text-primary transition-colors duration-200 cursor-pointer">Blog</a></li>
+                        <li><a href="#" class="text-gray-600 hover:text-primary transition-colors duration-200 cursor-pointer">Contact</a></li>
+                    </ul>
+                </div>
+                
+                <div>
+                    <h4 class="font-heading font-bold text-text mb-4">Support</h4>
+                    <ul class="space-y-2">
+                        <li><a href="#" class="text-gray-600 hover:text-primary transition-colors duration-200 cursor-pointer">Help Center</a></li>
+                        <li><a href="#" class="text-gray-600 hover:text-primary transition-colors duration-200 cursor-pointer">Privacy Policy</a></li>
+                        <li><a href="#" class="text-gray-600 hover:text-primary transition-colors duration-200 cursor-pointer">Terms of Service</a></li>
+                        <li><a href="#" class="text-gray-600 hover:text-primary transition-colors duration-200 cursor-pointer">Community</a></li>
+                    </ul>
+                </div>
+            </div>
+            
+            <div class="border-t border-gray-200 pt-8 flex flex-col md:flex-row justify-between items-center">
+                <p class="text-gray-600 text-sm">
+                    © 2025 LearnJoy. All rights reserved.
+                </p>
+                <div class="flex space-x-6 mt-4 md:mt-0">
+                    <a href="#" class="text-gray-600 hover:text-primary transition-colors duration-200 cursor-pointer" aria-label="Twitter">
+                        <svg class="w-6 h-6" fill="currentColor" viewBox="0 0 24 24">
+                            <path d="M23 3a10.9 10.9 0 01-3.14 1.53 4.48 4.48 0 00-7.86 3v1A10.66 10.66 0 013 4s-4 9 5 13a11.64 11.64 0 01-7 2c9 5 20 0 20-11.5a4.5 4.5 0 00-.08-.83A7.72 7.72 0 0023 3z"/>
+                        </svg>
+                    </a>
+                    <a href="#" class="text-gray-600 hover:text-primary transition-colors duration-200 cursor-pointer" aria-label="LinkedIn">
+                        <svg class="w-6 h-6" fill="currentColor" viewBox="0 0 24 24">
+                            <path d="M16 8a6 6 0 016 6v7h-4v-7a2 2 0 00-2-2 2 2 0 00-2 2v7h-4v-7a6 6 0 016-6zM2 9h4v12H2z"/>
+                            <circle cx="4" cy="4" r="2"/>
+                        </svg>
+                    </a>
+                    <a href="#" class="text-gray-600 hover:text-primary transition-colors duration-200 cursor-pointer" aria-label="Instagram">
+                        <svg class="w-6 h-6" fill="currentColor" viewBox="0 0 24 24">
+                            <rect width="20" height="20" x="2" y="2" rx="5" ry="5"/>
+                            <path d="M16 11.37A4 4 0 1112.63 8 4 4 0 0116 11.37zm1.5-4.87h.01"/>
+                        </svg>
+                    </a>
+                </div>
+            </div>
+        </div>
+    </footer>
+</body>
+</html>
