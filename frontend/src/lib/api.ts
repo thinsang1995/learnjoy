@@ -1,13 +1,13 @@
 // API configuration
-// In browser: use relative path (works with nginx proxy)
-// On server (SSR): use direct backend URL
+// In browser: use backend directly via localhost
+// On server (SSR): use internal docker network URL
 const getApiBaseUrl = () => {
   // Check if running in browser
   if (typeof window !== 'undefined') {
-    // Browser: use relative path - nginx will proxy to backend
-    return '';
+    // Browser: call backend directly
+    return 'http://localhost:3001';
   }
-  // Server-side (SSR): use direct backend URL
+  // Server-side (SSR): use docker internal network
   return process.env.NEXT_PUBLIC_API_URL || 'http://backend:3001';
 };
 
@@ -18,8 +18,10 @@ export const API_ENDPOINTS = {
   audio: `${API_BASE_URL}/api/audio`,
   audioUpload: `${API_BASE_URL}/api/audio/upload`,
   audioTopics: `${API_BASE_URL}/api/audio/topics`,
+  audioAdmin: `${API_BASE_URL}/api/audio/admin`,
   audioById: (id: string) => `${getApiBaseUrl()}/api/audio/${id}`,
   audioTranscript: (id: string) => `${getApiBaseUrl()}/api/audio/${id}/transcript`,
+  audioPublish: (id: string) => `${getApiBaseUrl()}/api/audio/${id}/publish`,
   
   // Quiz
   quizByAudio: (audioId: string) => `${getApiBaseUrl()}/api/audio/${audioId}/quiz`,
@@ -222,13 +224,15 @@ export async function uploadAudio(
   file: File,
   title: string,
   topic: string,
-  jlptLevel: string
+  jlptLevel: string,
+  autoTranscribe: boolean = true
 ): Promise<Audio> {
   const formData = new FormData();
   formData.append('file', file);
   formData.append('title', title);
   formData.append('topic', topic);
   formData.append('jlptLevel', jlptLevel);
+  formData.append('autoTranscribe', autoTranscribe.toString());
 
   const res = await fetch(API_ENDPOINTS.audioUpload, {
     method: 'POST',
@@ -238,6 +242,88 @@ export async function uploadAudio(
   if (!res.ok) {
     const error = await res.json().catch(() => ({ message: 'Upload failed' }));
     throw new Error(error.message || 'Failed to upload audio');
+  }
+
+  return res.json();
+}
+
+// Admin API functions
+export async function fetchAdminAudioList(params?: {
+  topic?: string;
+  jlptLevel?: string;
+  page?: number;
+  limit?: number;
+  includeUnpublished?: boolean;
+}): Promise<PaginatedResponse<Audio>> {
+  const searchParams = new URLSearchParams();
+  if (params?.topic) searchParams.set('topic', params.topic);
+  if (params?.jlptLevel) searchParams.set('jlptLevel', params.jlptLevel);
+  if (params?.page) searchParams.set('page', params.page.toString());
+  if (params?.limit) searchParams.set('limit', params.limit.toString());
+  searchParams.set('includeUnpublished', 'true');
+
+  const url = `${API_ENDPOINTS.audioAdmin}?${searchParams.toString()}`;
+  const res = await fetch(url, { cache: 'no-store' });
+  
+  if (!res.ok) throw new Error('Failed to fetch admin audio list');
+  return res.json();
+}
+
+export async function updateAudio(id: string, data: {
+  title?: string;
+  description?: string;
+  topic?: string;
+  jlptLevel?: string;
+  transcript?: string;
+}): Promise<Audio> {
+  const res = await fetch(API_ENDPOINTS.audioById(id), {
+    method: 'PUT',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(data),
+  });
+
+  if (!res.ok) {
+    const error = await res.json().catch(() => ({ message: 'Update failed' }));
+    throw new Error(error.message || 'Failed to update audio');
+  }
+
+  return res.json();
+}
+
+export async function deleteAudio(id: string): Promise<void> {
+  const res = await fetch(API_ENDPOINTS.audioById(id), {
+    method: 'DELETE',
+  });
+
+  if (!res.ok) {
+    const error = await res.json().catch(() => ({ message: 'Delete failed' }));
+    throw new Error(error.message || 'Failed to delete audio');
+  }
+}
+
+export async function togglePublishAudio(id: string, isPublished: boolean): Promise<Audio> {
+  const res = await fetch(API_ENDPOINTS.audioPublish(id), {
+    method: 'PUT',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ isPublished }),
+  });
+
+  if (!res.ok) {
+    const error = await res.json().catch(() => ({ message: 'Toggle publish failed' }));
+    throw new Error(error.message || 'Failed to toggle publish status');
+  }
+
+  return res.json();
+}
+
+export async function regenerateQuizzes(audioId: string): Promise<{ message: string; count: number }> {
+  const res = await fetch(API_ENDPOINTS.quizRegenerate(audioId), {
+    method: 'POST',
+  });
+
+  if (!res.ok) {
+    const error = await res.json().catch(() => ({ message: 'Regenerate failed' }));
+    throw new Error(error.message || 'Failed to regenerate quizzes');
   }
 
   return res.json();

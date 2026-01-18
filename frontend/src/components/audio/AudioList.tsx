@@ -70,15 +70,15 @@ export function AudioList({
   return (
     <div>
       {/* Filters */}
-      <div className="flex flex-wrap gap-4 mb-8">
-        {/* Topic Filter */}
-        <div className="flex flex-wrap gap-2">
+      <div className="flex flex-col sm:flex-row flex-wrap gap-3 md:gap-4 mb-6 md:mb-8 filter-container">
+        {/* Topic Filter - Horizontal scroll on mobile */}
+        <div className="flex gap-2 overflow-x-auto pb-2 -mx-4 px-4 sm:mx-0 sm:px-0 sm:flex-wrap filter-buttons">
           {topics.map((t) => (
             <button
               key={t.value}
               onClick={() => handleTopicChange(t.value)}
               className={cn(
-                'px-4 py-2 rounded-full text-sm font-medium transition-all',
+                'flex-shrink-0 px-3 md:px-4 py-2 rounded-full text-xs md:text-sm font-medium transition-all touch-target',
                 selectedTopic === t.value
                   ? 'clay-btn-primary text-white'
                   : 'clay-btn'
@@ -96,7 +96,7 @@ export function AudioList({
               key={l.value}
               onClick={() => handleLevelChange(l.value)}
               className={cn(
-                'px-4 py-2 rounded-full text-sm font-medium transition-all',
+                'px-3 md:px-4 py-2 rounded-full text-xs md:text-sm font-medium transition-all touch-target',
                 selectedLevel === l.value
                   ? 'bg-primary text-white'
                   : 'bg-white/60 hover:bg-white'
@@ -110,22 +110,22 @@ export function AudioList({
 
       {/* Audio Grid */}
       {loading ? (
-        <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-6">
           {[...Array(6)].map((_, i) => (
             <LoadingCard key={i} />
           ))}
         </div>
       ) : audios.length > 0 ? (
-        <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-6">
           {audios.map((audio) => (
             <AudioCard key={audio.id} audio={audio} />
           ))}
         </div>
       ) : (
-        <div className="text-center py-16">
-          <div className="text-6xl mb-4">🎧</div>
-          <h3 className="font-fredoka text-xl font-semibold mb-2">レッスンが見つかりません</h3>
-          <p className="text-text/60">他のトピックやレベルを選んでみてください</p>
+        <div className="text-center py-12 md:py-16">
+          <div className="text-5xl md:text-6xl mb-4">🎧</div>
+          <h3 className="font-fredoka text-lg md:text-xl font-semibold mb-2">レッスンが見つかりません</h3>
+          <p className="text-text/60 text-sm md:text-base">他のトピックやレベルを選んでみてください</p>
         </div>
       )}
 

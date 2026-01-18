@@ -1,4 +1,4 @@
-import { IsString, IsOptional, IsNumber, IsIn, IsObject, IsArray, Min, IsBoolean } from 'class-validator';
+import { IsString, IsOptional, IsNumber, IsIn, IsObject, IsArray, Min, IsBoolean, IsDefined } from 'class-validator';
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
 
 export class CreateQuizDto {
@@ -84,6 +84,7 @@ export class SubmitAnswerDto {
       reorder: { value: [2, 0, 3, 1], description: 'Array of segment indices' },
     },
   })
+  @IsDefined()
   answer: number | string | number[];
 }
 
@@ -108,13 +109,7 @@ export class GenerateBatchQuizDto {
   @IsBoolean()
   includeFill?: boolean;
 
-  @ApiPropertyOptional({
-    description: 'Include Reorder quizzes',
-    default: true,
-  })
-  @IsOptional()
-  @IsBoolean()
-  includeReorder?: boolean;
+  // includeReorder removed in Phase 4 - Reorder quiz type deprecated
 
   @ApiPropertyOptional({
     description: 'Number of each quiz type to generate',

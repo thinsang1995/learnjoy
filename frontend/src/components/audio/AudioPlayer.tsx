@@ -122,11 +122,11 @@ export function AudioPlayer({ src, title, className, onTimeUpdate }: AudioPlayer
       </div>
 
       {/* Controls */}
-      <div className="flex items-center justify-center gap-4">
+      <div className="flex items-center justify-center gap-2 sm:gap-4 controls-row">
         {/* Skip Back */}
         <button
           onClick={() => skipTime(-10)}
-          className="clay-btn w-12 h-12 flex items-center justify-center text-xl"
+          className="clay-btn w-10 h-10 sm:w-12 sm:h-12 flex items-center justify-center text-lg sm:text-xl skip-btn touch-target"
           title="10秒戻る"
         >
           ⏪
@@ -135,7 +135,7 @@ export function AudioPlayer({ src, title, className, onTimeUpdate }: AudioPlayer
         {/* Play/Pause */}
         <button
           onClick={togglePlay}
-          className="clay-btn-primary w-16 h-16 rounded-full flex items-center justify-center text-3xl"
+          className="clay-btn-primary w-14 h-14 sm:w-16 sm:h-16 rounded-full flex items-center justify-center text-2xl sm:text-3xl play-btn touch-target"
         >
           {isPlaying ? '⏸️' : '▶️'}
         </button>
@@ -143,7 +143,7 @@ export function AudioPlayer({ src, title, className, onTimeUpdate }: AudioPlayer
         {/* Skip Forward */}
         <button
           onClick={() => skipTime(10)}
-          className="clay-btn w-12 h-12 flex items-center justify-center text-xl"
+          className="clay-btn w-10 h-10 sm:w-12 sm:h-12 flex items-center justify-center text-lg sm:text-xl skip-btn touch-target"
           title="10秒進む"
         >
           ⏩
@@ -152,7 +152,7 @@ export function AudioPlayer({ src, title, className, onTimeUpdate }: AudioPlayer
         {/* Speed Control */}
         <button
           onClick={handleSpeedChange}
-          className="clay-btn px-4 py-2 text-sm font-mono"
+          className="clay-btn px-3 sm:px-4 py-2 text-xs sm:text-sm font-mono touch-target"
           title="再生速度"
         >
           {playbackRate}x

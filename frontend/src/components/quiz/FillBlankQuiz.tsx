@@ -37,16 +37,16 @@ export function FillBlankQuiz({ quiz, onComplete }: FillBlankQuizProps) {
   };
 
   return (
-    <div className="clay-card">
-      <h3 className="font-fredoka text-lg font-semibold mb-4">
+    <div className="clay-card clay-card-mobile">
+      <h3 className="font-fredoka text-base md:text-lg font-semibold mb-3 md:mb-4">
         空欄に入る言葉を選んでください
       </h3>
 
       {/* Sentence with blank */}
-      <div className="clay-card bg-white/50 mb-6 text-lg">
+      <div className="clay-card bg-white/50 mb-4 md:mb-6 text-base md:text-lg p-3 md:p-6">
         <span>{beforeBlank}</span>
         <span className={cn(
-          'inline-block min-w-[80px] px-3 py-1 mx-1 rounded-lg border-2 border-dashed',
+          'inline-block min-w-[60px] md:min-w-[80px] px-2 md:px-3 py-1 mx-1 rounded-lg border-2 border-dashed text-sm md:text-base',
           selectedAnswer 
             ? 'bg-primary/10 border-primary' 
             : 'bg-white/50 border-text/30',
@@ -59,14 +59,14 @@ export function FillBlankQuiz({ quiz, onComplete }: FillBlankQuizProps) {
       </div>
 
       {/* Options */}
-      <div className="flex flex-wrap gap-3 mb-6">
+      <div className="flex flex-wrap gap-2 md:gap-3 mb-4 md:mb-6">
         {data.options.map((option) => (
           <button
             key={option}
             onClick={() => !result && setSelectedAnswer(option)}
             disabled={result !== null}
             className={cn(
-              'px-4 py-2 rounded-xl transition-all',
+              'px-3 md:px-4 py-2 rounded-xl transition-all text-sm md:text-base touch-target',
               selectedAnswer === option
                 ? 'clay-btn-primary text-white'
                 : 'clay-btn',
@@ -81,7 +81,7 @@ export function FillBlankQuiz({ quiz, onComplete }: FillBlankQuizProps) {
 
       {/* Hint */}
       {data.hint && !result && (
-        <p className="text-sm text-text/50 mb-4">💡 ヒント: {data.hint}</p>
+        <p className="text-xs md:text-sm text-text/50 mb-3 md:mb-4">💡 ヒント: {data.hint}</p>
       )}
 
       {!result ? (
@@ -89,16 +89,16 @@ export function FillBlankQuiz({ quiz, onComplete }: FillBlankQuizProps) {
           variant="cta"
           onClick={handleSubmit}
           disabled={!selectedAnswer || isSubmitting}
-          className="w-full"
+          className="w-full quiz-btn-mobile"
         >
           {isSubmitting ? '確認中...' : '回答する'}
         </ClayButton>
       ) : (
         <div className={cn(
-          'p-4 rounded-xl',
+          'p-3 md:p-4 rounded-xl',
           result.correct ? 'bg-mint/30' : 'bg-soft-peach/30'
         )}>
-          <div className="flex items-center gap-2 font-semibold mb-2">
+          <div className="flex items-center gap-2 font-semibold mb-2 text-sm md:text-base">
             {result.correct ? (
               <>✅ 正解！</>
             ) : (

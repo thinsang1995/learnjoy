@@ -3,8 +3,8 @@ FROM node:20-alpine
 
 WORKDIR /app
 
-# Install dependencies for native modules
-RUN apk add --no-cache python3 make g++
+# Install dependencies for native modules and OpenSSL for Prisma
+RUN apk add --no-cache python3 make g++ openssl openssl-dev libc6-compat
 
 # Copy package files
 COPY package.json yarn.lock* ./

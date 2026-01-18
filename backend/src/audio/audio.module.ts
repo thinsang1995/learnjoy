@@ -7,6 +7,7 @@ import { AudioService } from './audio.service';
 import { AudioUploadService } from './audio-upload.service';
 import { StorageModule } from '../storage/storage.module';
 import { TranscriptModule } from '../transcript/transcript.module';
+import { QuizModule } from '../quiz/quiz.module';
 
 @Module({
   imports: [
@@ -18,6 +19,7 @@ import { TranscriptModule } from '../transcript/transcript.module';
     }),
     StorageModule,
     forwardRef(() => TranscriptModule),
+    forwardRef(() => QuizModule),
   ],
   controllers: [AudioController, AudioStreamController],
   providers: [AudioService, AudioUploadService],

@@ -37,28 +37,28 @@ export function MCQQuiz({ quiz, onComplete }: MCQQuizProps) {
   };
 
   return (
-    <div className="clay-card">
-      <h3 className="font-fredoka text-xl font-semibold mb-6">
+    <div className="clay-card clay-card-mobile">
+      <h3 className="font-fredoka text-lg md:text-xl font-semibold mb-4 md:mb-6">
         {data.question || quiz.question || 'この会話の内容について正しいものはどれですか？'}
       </h3>
 
-      <div className="space-y-3 mb-6">
+      <div className="space-y-2 md:space-y-3 mb-4 md:mb-6">
         {data.options.map((option, index) => (
           <button
             key={index}
             onClick={() => handleSelect(index)}
             disabled={result !== null}
             className={cn(
-              'clay-option w-full text-left',
+              'clay-option w-full text-left text-sm md:text-base touch-target flex items-center',
               selectedIndex === index && 'selected',
               result !== null && index === data.correctIndex && 'correct',
               result !== null && selectedIndex === index && !result.correct && 'incorrect'
             )}
           >
-            <span className="inline-flex items-center justify-center w-8 h-8 rounded-full bg-white/50 mr-3 font-semibold">
+            <span className="inline-flex items-center justify-center w-7 h-7 md:w-8 md:h-8 rounded-full bg-white/50 mr-2 md:mr-3 font-semibold text-sm flex-shrink-0">
               {String.fromCharCode(65 + index)}
             </span>
-            {option}
+            <span className="flex-1">{option}</span>
           </button>
         ))}
       </div>
@@ -68,16 +68,16 @@ export function MCQQuiz({ quiz, onComplete }: MCQQuizProps) {
           variant="cta"
           onClick={handleSubmit}
           disabled={selectedIndex === null || isSubmitting}
-          className="w-full"
+          className="w-full quiz-btn-mobile"
         >
           {isSubmitting ? '確認中...' : '回答する'}
         </ClayButton>
       ) : (
         <div className={cn(
-          'p-4 rounded-xl',
+          'p-3 md:p-4 rounded-xl',
           result.correct ? 'bg-mint/30' : 'bg-soft-peach/30'
         )}>
-          <div className="flex items-center gap-2 font-semibold mb-2">
+          <div className="flex items-center gap-2 font-semibold mb-2 text-sm md:text-base">
             {result.correct ? (
               <>✅ 正解！</>
             ) : (
@@ -85,7 +85,7 @@ export function MCQQuiz({ quiz, onComplete }: MCQQuizProps) {
             )}
           </div>
           {result.explanation && (
-            <p className="text-sm text-text/70">{result.explanation}</p>
+            <p className="text-xs md:text-sm text-text/70">{result.explanation}</p>
           )}
         </div>
       )}

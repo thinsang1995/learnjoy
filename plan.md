@@ -697,13 +697,16 @@ NEXT_PUBLIC_API_URL=http://localhost:3001
 
 ## Risk & Mitigation
 
-| Risk | Impact | Mitigation |
-|------|--------|------------|
-| Whisper accuracy for Japanese | High | Test với multiple models, fallback to cloud API |
-| Groq rate limits | Medium | Implement queue, cache aggressively |
-| Docker build time | Medium | Use multi-stage builds, cache layers |
-| Cross-platform issues | Medium | Test on both Windows + macOS |
-| Audio storage costs | Low | Cloudflare R2 free egress |
+| Risk | Impact | Mitigation | Status |
+|------|--------|------------|--------|
+| Whisper accuracy for Japanese | High | Test với multiple models, fallback to cloud API | ✅ Working |
+| Groq rate limits | Medium | Implement queue, cache aggressively | ✅ Implemented |
+| Docker build time | Medium | Use multi-stage builds, cache layers | ✅ Optimized |
+| Cross-platform issues | Medium | Test on both Windows + macOS | ✅ Tested |
+| Audio storage costs | Low | Cloudflare R2 free egress | ✅ Configured |
+| **Prisma Alpine compatibility** | High | Add `linux-musl-openssl-3.0.x` binary target | ✅ Fixed |
+| **Database password sync** | Medium | Document: reset volume if password changed | ✅ Documented |
+| **R2 credential validation** | Medium | Auto-fallback to local storage if invalid | ✅ Implemented |
 
 ---
 
@@ -764,7 +767,131 @@ docker-compose exec frontend npm test
 
 # E2E tests
 npm run test:e2e
+
+# === Troubleshooting ===
+
+# Reset database (when password changed)
+docker-compose down -v
+docker-compose up -d
+
+# Create database tables
+docker exec learnjoy-backend npx prisma db push
+
+# Regenerate Prisma client
+docker exec learnjoy-backend npx prisma generate
+
+# Check backend logs
+docker logs learnjoy-backend --tail 50
+
+# Check all services
+docker ps -a
 ```
+
+---
+
+## Troubleshooting Guide
+
+### 1. Database Authentication Failed (P1000)
+
+**Error:**
+```
+PrismaClientInitializationError: Authentication failed against database server
+```
+
+**Nguyên nhân:** Password trong `.env` khác với password database volume đã tạo.
+
+**Giải pháp:**
+```bash
+docker-compose down -v  # Xóa volumes
+docker-compose up -d    # Tạo lại với password mới
+```
+
+### 2. Table does not exist
+
+**Error:**
+```
+The table `public.audio` does not exist in the current database
+```
+
+**Nguyên nhân:** Database mới tạo, chưa có tables.
+
+**Giải pháp:**
+```bash
+docker exec learnjoy-backend npx prisma db push
+```
+
+### 3. Prisma Engine Error (Alpine Linux)
+
+**Error:**
+```
+Unable to require libquery_engine-linux-musl.so.node
+```
+
+**Nguyên nhân:** Thiếu binary target cho Alpine Linux với OpenSSL 3.x.
+
+**Giải pháp:** Cập nhật `prisma/schema.prisma`:
+```prisma
+generator client {
+  provider      = "prisma-client-js"
+  binaryTargets = ["native", "linux-musl-openssl-3.0.x"]
+}
+```
+
+Sau đó:
+```bash
+docker exec learnjoy-backend npx prisma generate
+docker-compose restart backend
+```
+
+### 4. R2 Storage SSL Error
+
+**Error:**
+```
+write EPROTO...sslv3 alert handshake failure
+```
+
+**Nguyên nhân:** R2 credentials là placeholder values hoặc không hợp lệ.
+
+**Giải pháp:**
+- Cập nhật credentials thật từ Cloudflare Dashboard
+- Hoặc xóa R2 credentials để dùng local storage fallback
+
+### 5. Full Reset
+
+Khi gặp nhiều lỗi, reset toàn bộ:
+```bash
+docker-compose down -v --remove-orphans
+docker-compose up -d
+sleep 30
+docker exec learnjoy-backend npx prisma db push
+```
+
+---
+
+## Lessons Learned (2026-01-17)
+
+### Docker & Prisma trên Alpine Linux
+
+1. **Prisma cần binary target chính xác** cho Alpine:
+   - Node.js 20 trên Alpine dùng OpenSSL 3.x
+   - Cần `linux-musl-openssl-3.0.x` thay vì `linux-musl`
+
+2. **Database password sync:**
+   - Password trong `.env` phải match với lúc tạo DB volume
+   - Nếu đổi password, phải `docker-compose down -v`
+
+3. **Prisma migrations vs db push:**
+   - Development: Dùng `prisma db push` (nhanh, không cần migration files)
+   - Production: Dùng `prisma migrate deploy`
+
+### R2 Storage Fallback
+
+1. **Auto-detect invalid credentials:**
+   - Check `R2_ACCOUNT_ID` không chứa "your_" 
+   - Check độ dài credentials > 10 chars
+   - Tự động fallback sang local storage nếu invalid
+
+2. **Local storage path:** `/app/uploads` (mounted từ host)
 
 ---
 
@@ -775,12 +902,157 @@ npm run test:e2e
 3. **Spaced Repetition** - Review wrong answers
 4. **Leaderboard** - Gamification
 5. **More Quiz Types** - Shadowing, dictation
-6. **Admin Dashboard** - Content management
+6. ~~**Admin Dashboard** - Content management~~ ✅ Implemented
 7. **Analytics** - User performance tracking
 8. **PWA Offline Mode** - Service worker caching
 
 ---
 
+## Phase 4: Maintenance & Enhancements (2026-01-18)
+
+### 4.1 Admin Audio Management Dashboard
+
+**Route:** `/admin`
+
+**Features:**
+| Feature | Description | Status |
+|---------|-------------|--------|
+| Audio List | Table view with pagination, search, filter | ✅ |
+| Upload Audio | Upload form integrated in admin page | ✅ |
+| Edit Audio | Update title, topic, JLPT level, description | ✅ |
+| Delete Audio | Soft delete with confirmation | ✅ |
+| Publish/Unpublish | Toggle `isPublished` status | ✅ |
+| Transcript Management | View/Edit transcript | ✅ |
+| Quiz Management | Regenerate quizzes | ✅ |
+
+**UI Components:**
+```text
+/admin
+├── AudioTable.tsx          # Sortable table with actions
+├── AudioUploadForm.tsx     # Upload with metadata
+├── AudioEditModal.tsx      # Edit audio details
+├── PublishToggle.tsx       # Toggle publish status
+└── TranscriptViewer.tsx    # View/edit transcript
+```
+
+**API Endpoints (Admin):**
+| Method | Endpoint | Description |
+|--------|----------|-------------|
+| `GET` | `/api/audio?includeUnpublished=true` | List all audio (admin) |
+| `PUT` | `/api/audio/:id` | Update audio metadata |
+| `PATCH` | `/api/audio/:id/publish` | Toggle publish status |
+| `DELETE` | `/api/audio/:id` | Delete audio |
+
+### 4.2 Transcript Section Toggle
+
+**Location:** Audio Detail Page (`/audio/[id]`)
+
+**Behavior:**
+- Default: Transcript section is **hidden**
+- Toggle button: 「📝 トランスクリプトを表示」/ 「📝 トランスクリプトを隠す」
+- Animation: Smooth expand/collapse
+
+**Implementation:**
+```tsx
+const [showTranscript, setShowTranscript] = useState(false);
+
+<button onClick={() => setShowTranscript(!showTranscript)}>
+  {showTranscript ? '📝 トランスクリプトを隠す' : '📝 トランスクリプトを表示'}
+</button>
+
+{showTranscript && (
+  <ClayCard className="mb-8">
+    <p>{audio.transcript}</p>
+  </ClayCard>
+)}
+```
+
+### 4.3 Remove Reorder Quiz Type
+
+**Reason:** Complexity vs user value - focus on MCQ and Fill-in-blank
+
+**Changes:**
+| File | Change |
+|------|--------|
+| `QuizContainer.tsx` | Remove reorder tab |
+| `ReorderQuiz.tsx` | Mark as deprecated (keep for future) |
+| `groq.service.ts` | Remove reorder prompt |
+| `quiz-generator.service.ts` | Remove reorder from batch generation |
+| Database | Keep existing reorder quizzes (backward compatible) |
+
+**Quiz Types (Updated):**
+```typescript
+type QuizType = 'mcq' | 'fill'; // Removed 'reorder'
+```
+
+### 4.4 Mobile Responsive Enhancements
+
+**Breakpoints:**
+| Breakpoint | Width | Target |
+|------------|-------|--------|
+| `sm` | 640px | Mobile landscape |
+| `md` | 768px | Tablet |
+| `lg` | 1024px | Desktop |
+
+**Mobile Optimizations:**
+| Component | Mobile Enhancement |
+|-----------|-------------------|
+| Navbar | Hamburger menu, sticky header |
+| AudioList | Single column grid, larger touch targets |
+| AudioPlayer | Full-width, larger controls |
+| QuizContainer | Stacked layout, larger buttons |
+| Admin Table | Horizontal scroll, card view on mobile |
+| Filters | Bottom sheet on mobile |
+
+**CSS Utilities:**
+```css
+/* Mobile-first responsive classes */
+.clay-card-mobile {
+  @apply w-full p-4 md:p-6;
+}
+
+.quiz-btn-mobile {
+  @apply min-h-[48px] text-base md:text-lg;
+}
+
+.touch-target {
+  @apply min-w-[44px] min-h-[44px];
+}
+```
+
+### 4.5 Bug Fixes (2026-01-18)
+
+| Issue | Root Cause | Fix |
+|-------|------------|-----|
+| Quiz submit 400 error | Missing `@IsDefined()` decorator | Added to `SubmitAnswerDto` |
+| Audio list empty | `isPublished = false` by default | Auto-publish on upload |
+| Frontend SSR fetch error | Wrong API URL for docker network | `NEXT_PUBLIC_API_URL=http://backend:3001` |
+| Groq model deprecated | `llama-3.1-70b-versatile` decommissioned | Updated to `llama-3.3-70b-versatile` |
+| Whisper binary path | Old path `/app/whisper.cpp/main` | Updated to `/app/whisper.cpp/build/bin/whisper-cli` |
+
+---
+
+## Updated Success Criteria
+
+### MVP (Completed ✅)
+- [x] Docker Compose chạy được trên cả Windows và macOS
+- [x] Upload audio và tự động tạo transcript
+- [x] Generate được quiz từ transcript (MCQ, Fill-in-blank)
+- [x] UI LearnJoy với Claymorphism design
+- [x] Audio streaming mượt
+- [x] Quiz interaction hoạt động đúng
+- [x] Response time < 3s
+
+### Phase 4 (Completed ✅)
+- [x] Admin dashboard với CRUD audio
+- [x] Publish/Unpublish functionality
+- [x] Transcript toggle (default hidden)
+- [x] Remove reorder quiz type
+- [x] Mobile responsive (full optimization)
+- [x] E2E tests for new features
+
+---
+
 **Created**: 2026-01-17  
-**Last Updated**: 2026-01-17  
-**Status**: Ready for Development
+**Last Updated**: 2026-01-18  
+**Status**: Phase 4 - Completed ✅

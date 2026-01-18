@@ -4,7 +4,6 @@ import { useState } from 'react';
 import { Quiz } from '@/lib/api';
 import { MCQQuiz } from './MCQQuiz';
 import { FillBlankQuiz } from './FillBlankQuiz';
-import { ReorderQuiz } from './ReorderQuiz';
 import { cn } from '@/lib/utils';
 import { ClayButton } from '@/components/ui';
 
@@ -16,16 +15,20 @@ interface QuizContainerProps {
 const quizTypeLabels = {
   mcq: { label: '選択問題', icon: '📝' },
   fill: { label: '穴埋め', icon: '✏️' },
-  reorder: { label: '並べ替え', icon: '🔀' },
 };
 
 export function QuizContainer({ quizzes, onComplete }: QuizContainerProps) {
+  // Filter out reorder quizzes - only support mcq and fill
+  const supportedQuizzes = quizzes.filter(q => q.type === 'mcq' || q.type === 'fill');
+  
   const [currentIndex, setCurrentIndex] = useState(0);
   const [results, setResults] = useState<boolean[]>([]);
   const [showSummary, setShowSummary] = useState(false);
 
-  const currentQuiz = quizzes[currentIndex];
-  const progress = ((currentIndex + 1) / quizzes.length) * 100;
+  const currentQuiz = supportedQuizzes[currentIndex];
+  const progress = supportedQuizzes.length > 0 
+    ? ((currentIndex + 1) / supportedQuizzes.length) * 100 
+    : 0;
 
   const handleQuizComplete = (correct: boolean) => {
     const newResults = [...results, correct];
@@ -33,12 +36,12 @@ export function QuizContainer({ quizzes, onComplete }: QuizContainerProps) {
 
     // Auto advance after delay
     setTimeout(() => {
-      if (currentIndex < quizzes.length - 1) {
+      if (currentIndex < supportedQuizzes.length - 1) {
         setCurrentIndex(currentIndex + 1);
       } else {
         setShowSummary(true);
         const correctCount = newResults.filter(Boolean).length;
-        onComplete?.({ correct: correctCount, total: quizzes.length });
+        onComplete?.({ correct: correctCount, total: supportedQuizzes.length });
       }
     }, 1500);
   };
@@ -49,14 +52,12 @@ export function QuizContainer({ quizzes, onComplete }: QuizContainerProps) {
         return <MCQQuiz quiz={quiz} onComplete={handleQuizComplete} />;
       case 'fill':
         return <FillBlankQuiz quiz={quiz} onComplete={handleQuizComplete} />;
-      case 'reorder':
-        return <ReorderQuiz quiz={quiz} onComplete={handleQuizComplete} />;
       default:
         return <p>Unknown quiz type</p>;
     }
   };
 
-  if (quizzes.length === 0) {
+  if (supportedQuizzes.length === 0) {
     return (
       <div className="clay-card text-center py-8">
         <div className="text-5xl mb-4">📝</div>
@@ -68,7 +69,7 @@ export function QuizContainer({ quizzes, onComplete }: QuizContainerProps) {
 
   if (showSummary) {
     const correctCount = results.filter(Boolean).length;
-    const percentage = Math.round((correctCount / quizzes.length) * 100);
+    const percentage = Math.round((correctCount / supportedQuizzes.length) * 100);
 
     return (
       <div className="clay-card text-center">
@@ -81,7 +82,7 @@ export function QuizContainer({ quizzes, onComplete }: QuizContainerProps) {
         </h3>
         
         <div className="text-4xl font-bold text-primary mb-4">
-          {correctCount} / {quizzes.length}
+          {correctCount} / {supportedQuizzes.length}
         </div>
         
         <p className="text-text/60 mb-6">
@@ -113,10 +114,10 @@ export function QuizContainer({ quizzes, onComplete }: QuizContainerProps) {
       <div className="mb-6">
         <div className="flex items-center justify-between mb-2">
           <span className="text-sm font-medium text-text/60">
-            {quizTypeLabels[currentQuiz.type].icon} {quizTypeLabels[currentQuiz.type].label}
+            {quizTypeLabels[currentQuiz.type as keyof typeof quizTypeLabels]?.icon} {quizTypeLabels[currentQuiz.type as keyof typeof quizTypeLabels]?.label}
           </span>
           <span className="text-sm font-medium text-text/60">
-            {currentIndex + 1} / {quizzes.length}
+            {currentIndex + 1} / {supportedQuizzes.length}
           </span>
         </div>
         <div className="clay-progress">
@@ -132,7 +133,7 @@ export function QuizContainer({ quizzes, onComplete }: QuizContainerProps) {
 
       {/* Navigation Dots */}
       <div className="flex justify-center gap-2 mt-6">
-        {quizzes.map((_, index) => (
+        {supportedQuizzes.map((_, index) => (
           <div
             key={index}
             className={cn(

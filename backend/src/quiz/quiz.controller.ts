@@ -102,15 +102,13 @@ export class QuizController {
       {
         includeMcq: batchDto.includeMcq,
         includeFill: batchDto.includeFill,
-        includeReorder: batchDto.includeReorder,
         countEach: batchDto.countEach,
       },
     );
 
     const totalCount = 
       (result.mcq?.length || 0) + 
-      (result.fill?.length || 0) + 
-      (result.reorder?.length || 0);
+      (result.fill?.length || 0);
 
     return {
       ...result,

@@ -332,3 +332,165 @@ chmod +x ngrok-manager-mac.sh start-learnjoy-mac.command get-current-url-mac.sh
 ./ngrok-manager-mac.sh 3000 ap 12  # Asia Pacific (recommended)
 ./ngrok-manager-mac.sh 3000 jp 12  # Japan (alternative)
 ```
+
+## 🔧 Troubleshooting
+
+### 1. Ngrok không tìm thấy
+
+**Windows:**
+```powershell
+# Kiểm tra ngrok
+where ngrok
+
+# Nếu không có, download và cài vào:
+# C:\Users\<username>\AppData\Local\Programs\ngrok.exe
+# Hoặc thêm vào PATH
+```
+
+**macOS:**
+```bash
+# Cài qua Homebrew
+brew install ngrok/ngrok/ngrok
+
+# Verify
+which ngrok
+ngrok version
+```
+
+### 2. 502 Bad Gateway khi access qua Ngrok
+
+**Nguyên nhân:** Backend crash hoặc không running.
+
+**Giải pháp:**
+```bash
+# Check container status
+docker ps -a
+
+# Check backend logs
+docker logs learnjoy-backend --tail 50
+
+# Restart services
+docker compose restart backend
+
+# Nếu vẫn lỗi, restart all
+docker compose down
+docker compose -f docker-compose.yml -f docker-compose.ngrok.yml up -d
+```
+
+### 3. Database Authentication Failed (P1000)
+
+**Log hiển thị:**
+```
+PrismaClientInitializationError: Authentication failed against database server
+```
+
+**Nguyên nhân:** Password trong `.env` khác với password trong database volume đã tạo trước đó.
+
+**Giải pháp:**
+```bash
+# Reset database với password mới (MẤT HẾT DATA!)
+docker compose down -v
+docker compose -f docker-compose.yml -f docker-compose.ngrok.yml up -d
+
+# Đợi services khởi động
+sleep 20
+
+# Tạo lại tables
+docker exec learnjoy-backend npx prisma db push
+```
+
+### 4. Table does not exist
+
+**Log hiển thị:**
+```
+The table `public.audio` does not exist in the current database
+```
+
+**Nguyên nhân:** Database mới tạo nhưng chưa có tables.
+
+**Giải pháp:**
+```bash
+docker exec learnjoy-backend npx prisma db push
+```
+
+### 5. R2 Upload SSL Error
+
+**Log hiển thị:**
+```
+write EPROTO...sslv3 alert handshake failure
+```
+
+**Nguyên nhân:** R2 credentials trong `.env` là placeholder values hoặc không hợp lệ.
+
+**Giải pháp:**
+1. **Dùng R2 thật:** Lấy credentials từ Cloudflare Dashboard → R2 → Manage R2 API Tokens
+2. **Dùng local storage:** Xóa hoặc comment R2 credentials trong `.env`, backend sẽ tự động fallback sang local storage
+
+### 6. Prisma Engine Error trên Docker
+
+**Log hiển thị:**
+```
+PrismaClientInitializationError: Unable to require libquery_engine
+```
+
+**Giải pháp:**
+```bash
+# Regenerate Prisma client trong container
+docker exec learnjoy-backend npx prisma generate
+
+# Restart backend
+docker compose restart backend
+```
+
+### 7. Nginx không start
+
+**Kiểm tra:**
+```bash
+docker logs learnjoy-nginx
+```
+
+**Giải pháp:**
+```bash
+# Restart nginx
+docker compose -f docker-compose.yml -f docker-compose.ngrok.yml up -d nginx
+```
+
+### 8. Full Reset (khi gặp nhiều lỗi)
+
+```bash
+cd learnjoy
+
+# Stop và xóa tất cả containers + volumes
+docker compose down -v --remove-orphans
+
+# Xóa nginx orphan container nếu còn
+docker rm -f learnjoy-nginx 2>/dev/null
+
+# Start lại với ngrok config
+docker compose -f docker-compose.yml -f docker-compose.ngrok.yml up -d
+
+# Đợi services khởi động hoàn tất
+sleep 30
+
+# Tạo database tables
+docker exec learnjoy-backend npx prisma db push
+
+# Verify
+docker logs learnjoy-backend --tail 20
+```
+
+### 9. Check service health
+
+```bash
+# All containers running?
+docker ps
+
+# Backend health
+curl http://localhost:3001/api/health
+
+# Frontend health
+curl http://localhost:3000
+
+# Nginx (nếu dùng ngrok)
+curl http://localhost:8080/api/health
+```

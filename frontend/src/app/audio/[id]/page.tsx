@@ -1,15 +1,18 @@
-import { notFound } from 'next/navigation';
+'use client';
+
+import { useEffect, useState } from 'react';
+import { useParams } from 'next/navigation';
 import Link from 'next/link';
 import { Navbar, Footer } from '@/components/layout';
 import { AudioPlayer } from '@/components/audio';
 import { QuizContainer } from '@/components/quiz';
-import { ClayCard } from '@/components/ui';
+import { ClayCard, ClayButton } from '@/components/ui';
 import { API_ENDPOINTS, Audio, getTopicInfo, formatDuration } from '@/lib/api';
 
 async function getAudio(id: string): Promise<Audio | null> {
   try {
     const res = await fetch(API_ENDPOINTS.audioById(id), {
-      next: { revalidate: 60 },
+      cache: 'no-store',
     });
     
     if (!res.ok) return null;
@@ -20,15 +23,54 @@ async function getAudio(id: string): Promise<Audio | null> {
   }
 }
 
-export default async function AudioDetailPage({
-  params,
-}: {
-  params: { id: string };
-}) {
-  const audio = await getAudio(params.id);
+export default function AudioDetailPage() {
+  const params = useParams();
+  const id = params.id as string;
+  
+  const [audio, setAudio] = useState<Audio | null>(null);
+  const [loading, setLoading] = useState(true);
+  const [showTranscript, setShowTranscript] = useState(false);
+
+  useEffect(() => {
+    async function fetchAudio() {
+      const data = await getAudio(id);
+      setAudio(data);
+      setLoading(false);
+    }
+    fetchAudio();
+  }, [id]);
+
+  if (loading) {
+    return (
+      <main className="min-h-screen">
+        <Navbar />
+        <section className="pt-28 pb-12 px-4">
+          <div className="max-w-4xl mx-auto text-center">
+            <div className="animate-pulse text-6xl mb-4">🎧</div>
+            <p className="text-text/60">読み込み中...</p>
+          </div>
+        </section>
+        <Footer />
+      </main>
+    );
+  }
 
   if (!audio) {
-    notFound();
+    return (
+      <main className="min-h-screen">
+        <Navbar />
+        <section className="pt-28 pb-12 px-4">
+          <div className="max-w-4xl mx-auto text-center">
+            <div className="text-6xl mb-4">😢</div>
+            <h1 className="font-fredoka text-2xl font-bold mb-4">音声が見つかりません</h1>
+            <Link href="/audio" className="text-primary hover:underline">
+              レッスン一覧に戻る
+            </Link>
+          </div>
+        </section>
+        <Footer />
+      </main>
+    );
   }
 
   const topicInfo = getTopicInfo(audio.topic);
@@ -79,16 +121,31 @@ export default async function AudioDetailPage({
             />
           </div>
 
-          {/* Transcript (if available) */}
+          {/* Transcript Toggle (default hidden) */}
           {audio.transcript && (
-            <ClayCard className="mb-8">
-              <h2 className="font-fredoka text-xl font-semibold mb-4">
-                📝 トランスクリプト
-              </h2>
-              <p className="text-text/80 leading-relaxed whitespace-pre-wrap">
-                {audio.transcript}
-              </p>
-            </ClayCard>
+            <div className="mb-8">
+              <ClayButton
+                onClick={() => setShowTranscript(!showTranscript)}
+                className="mb-4 w-full md:w-auto"
+              >
+                {showTranscript ? '📝 トランスクリプトを隠す' : '📝 トランスクリプトを表示'}
+              </ClayButton>
+              
+              <div 
+                className={`transition-all duration-300 ease-in-out overflow-hidden ${
+                  showTranscript ? 'max-h-[2000px] opacity-100' : 'max-h-0 opacity-0'
+                }`}
+              >
+                <ClayCard>
+                  <h2 className="font-fredoka text-xl font-semibold mb-4">
+                    📝 トランスクリプト
+                  </h2>
+                  <p className="text-text/80 leading-relaxed whitespace-pre-wrap">
+                    {audio.transcript}
+                  </p>
+                </ClayCard>
+              </div>
+            </div>
           )}
 
           {/* Quiz Section */}

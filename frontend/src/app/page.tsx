@@ -18,9 +18,14 @@ export default function Home() {
               N2・N3レベルの音声を聞いて、クイズで理解度をチェック。
               毎日の練習で確実にリスニング力をアップ！
             </p>
-            <Link href="/audio" className="clay-btn-cta inline-block text-lg">
-              今すぐ始める →
-            </Link>
+            <div className="flex flex-wrap justify-center gap-4">
+              <Link href="/audio" className="clay-btn-cta inline-block text-lg">
+                📚 レッスン一覧 →
+              </Link>
+              <Link href="/audio/19979cb6-cc0d-4c2b-b7a5-03d97b5bbf29" className="clay-btn inline-block text-lg">
+                🎧 サンプルを見る
+              </Link>
+            </div>
           </div>
 
           {/* Feature Cards */}

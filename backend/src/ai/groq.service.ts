@@ -19,7 +19,7 @@ export class GroqService {
 
     try {
       const completion = await this.client.chat.completions.create({
-        model: 'llama-3.1-70b-versatile',
+        model: 'llama-3.3-70b-versatile',
         messages: [
           {
             role: 'system',
@@ -132,7 +132,7 @@ ${transcript}
   async checkHealth(): Promise<boolean> {
     try {
       await this.client.chat.completions.create({
-        model: 'llama-3.1-70b-versatile',
+        model: 'llama-3.3-70b-versatile',
         messages: [{ role: 'user', content: 'ping' }],
         max_tokens: 5,
       });

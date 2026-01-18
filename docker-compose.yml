@@ -60,7 +60,8 @@ services:
       - "3000:3000"
     environment:
       NODE_ENV: development
-      NEXT_PUBLIC_API_URL: http://localhost:3001
+      # SSR calls use internal docker network
+      NEXT_PUBLIC_API_URL: http://backend:3001
     volumes:
       - ./frontend/src:/app/src
       - ./frontend/public:/app/public

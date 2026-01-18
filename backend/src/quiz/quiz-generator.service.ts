@@ -100,18 +100,17 @@ export class QuizGeneratorService {
     options: {
       includeMcq?: boolean;
       includeFill?: boolean;
-      includeReorder?: boolean;
+      // includeReorder is deprecated - removed in Phase 4
       countEach?: number;
     },
-  ): Promise<{ mcq?: GeneratedQuiz[]; fill?: GeneratedQuiz[]; reorder?: GeneratedQuiz[] }> {
+  ): Promise<{ mcq?: GeneratedQuiz[]; fill?: GeneratedQuiz[] }> {
     const { 
       includeMcq = true, 
       includeFill = true, 
-      includeReorder = true, 
       countEach = 1 
     } = options;
 
-    const result: { mcq?: GeneratedQuiz[]; fill?: GeneratedQuiz[]; reorder?: GeneratedQuiz[] } = {};
+    const result: { mcq?: GeneratedQuiz[]; fill?: GeneratedQuiz[] } = {};
 
     // Delete existing quizzes for this audio
     await this.quizService.deleteByAudioId(audioId);
@@ -133,12 +132,7 @@ export class QuizGeneratorService {
       );
     }
 
-    if (includeReorder) {
-      promises.push(
-        this.generateMultipleQuizzes(audioId, 'reorder', countEach, true)
-          .then(quizzes => { result.reorder = quizzes; })
-      );
-    }
+    // Reorder quiz type removed in Phase 4
 
     await Promise.all(promises);
 
@@ -152,18 +146,16 @@ export class QuizGeneratorService {
     // Delete all existing quizzes
     await this.quizService.deleteByAudioId(audioId);
 
-    // Generate new quizzes
+    // Generate new quizzes (MCQ and Fill only - Reorder removed in Phase 4)
     const result = await this.generateBatchQuizzes(audioId, {
       includeMcq: true,
       includeFill: true,
-      includeReorder: true,
       countEach: 1,
     });
 
     const totalGenerated = 
       (result.mcq?.length || 0) + 
-      (result.fill?.length || 0) + 
-      (result.reorder?.length || 0);
+      (result.fill?.length || 0);
 
     return totalGenerated;
   }

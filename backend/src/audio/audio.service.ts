@@ -95,8 +95,14 @@ export class AudioService {
     audioUrl: string;
     duration: number;
     thumbnailColor?: string;
+    isPublished?: boolean;
   }) {
-    return this.prisma.audio.create({ data });
+    return this.prisma.audio.create({ 
+      data: {
+        ...data,
+        isPublished: data.isPublished ?? true, // Default to published
+      }
+    });
   }
 
   async update(id: string, data: Partial<{

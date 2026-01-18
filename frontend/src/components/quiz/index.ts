@@ -1,4 +1,5 @@
 export { MCQQuiz } from './MCQQuiz';
 export { FillBlankQuiz } from './FillBlankQuiz';
-export { ReorderQuiz } from './ReorderQuiz';
+// ReorderQuiz is deprecated - keeping file for backward compatibility but not exported
+// export { ReorderQuiz } from './ReorderQuiz';
 export { QuizContainer } from './QuizContainer';

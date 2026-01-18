@@ -17,6 +17,21 @@ services:
     environment:
       WATCHPACK_POLLING: "true"
 
+  # Nginx Reverse Proxy for development
+  nginx:
+    image: nginx:alpine
+    container_name: learnjoy-nginx
+    ports:
+      - "8080:80"
+    volumes:
+      - ./nginx/nginx.conf:/etc/nginx/nginx.conf:ro
+      - ./uploads:/var/www/uploads:ro
+    depends_on:
+      - frontend
+      - backend
+    networks:
+      - learnjoy-network
+
   # Optional: pgAdmin for database management
   pgadmin:
     image: dpage/pgadmin4:latest

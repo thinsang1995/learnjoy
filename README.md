@@ -206,6 +206,99 @@ docker-compose -f docker-compose.prod.yml --profile with-nginx up -d
 - `GET /api/health/live` - Liveness probe
 - `GET /api/health/ready` - Readiness probe
 
+## Troubleshooting
+
+### 🔧 Common Issues & Solutions
+
+#### 1. Database Authentication Failed (P1000)
+```
+PrismaClientInitializationError: Authentication failed against database server
+```
+**Nguyên nhân:** Password trong `.env` khác với password đã dùng khi tạo database volume.
+
+**Giải pháp:**
+```bash
+# Reset database với password mới
+docker compose down -v
+docker compose up -d
+```
+
+#### 2. Table does not exist
+```
+The table `public.audio` does not exist in the current database
+```
+**Nguyên nhân:** Database mới tạo nhưng chưa có tables.
+
+**Giải pháp:**
+```bash
+docker exec learnjoy-backend npx prisma db push
+```
+
+#### 3. Prisma Engine Error trên Alpine Linux
+```
+PrismaClientInitializationError: Unable to require(`/app/node_modules/.prisma/client/libquery_engine-linux-musl.so.node`)
+```
+**Nguyên nhân:** Thiếu binary target cho Alpine Linux.
+
+**Giải pháp:** Đảm bảo `prisma/schema.prisma` có:
+```prisma
+generator client {
+  provider      = "prisma-client-js"
+  binaryTargets = ["native", "linux-musl-openssl-3.0.x"]
+}
+```
+Sau đó rebuild:
+```bash
+docker exec learnjoy-backend npx prisma generate
+docker compose restart backend
+```
+
+#### 4. R2 Upload SSL Handshake Error
+```
+write EPROTO...sslv3 alert handshake failure
+```
+**Nguyên nhân:** R2 credentials trong `.env` là placeholder values.
+
+**Giải pháp:** 
+- Cập nhật R2 credentials thật từ Cloudflare Dashboard
+- Hoặc để trống để dùng local storage fallback
+
+#### 5. 502 Bad Gateway qua Ngrok
+**Nguyên nhân:** Backend crash hoặc không running.
+
+**Giải pháp:**
+```bash
+# Check backend status
+docker logs learnjoy-backend --tail 50
+
+# Restart nếu cần
+docker compose restart backend
+```
+
+### 📦 Reset Everything
+Nếu gặp nhiều lỗi, reset toàn bộ:
+```bash
+cd learnjoy
+docker compose down -v --remove-orphans
+docker compose up -d
+sleep 20
+docker exec learnjoy-backend npx prisma db push
+```
+
+## Public Access với Ngrok
+
+Xem hướng dẫn chi tiết tại [ngrok-tools/README.md](ngrok-tools/README.md)
+
+```bash
+# Windows
+cd ngrok-tools
+start-learnjoy.bat
+
+# macOS
+cd ngrok-tools
+./ngrok-manager-mac.sh
+```
+
 ## License
 
 MIT License

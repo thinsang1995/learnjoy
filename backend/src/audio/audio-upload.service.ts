@@ -29,7 +29,22 @@ export class AudioUploadService {
     private readonly r2Service: R2Service,
   ) {
     this.uploadDir = this.configService.get<string>('UPLOAD_DIR') || '/app/uploads';
-    this.useR2 = !!this.configService.get<string>('R2_ACCOUNT_ID');
+    
+    // Only use R2 if all credentials are properly configured (not placeholder values)
+    const r2AccountId = this.configService.get<string>('R2_ACCOUNT_ID') || '';
+    const r2AccessKey = this.configService.get<string>('R2_ACCESS_KEY_ID') || '';
+    const r2SecretKey = this.configService.get<string>('R2_SECRET_ACCESS_KEY') || '';
+    
+    this.useR2 = !!(
+      r2AccountId && 
+      r2AccessKey && 
+      r2SecretKey && 
+      !r2AccountId.includes('your_') &&
+      !r2AccessKey.includes('your_') &&
+      r2AccountId.length > 10
+    );
+    
+    this.logger.log(`Storage mode: ${this.useR2 ? 'Cloudflare R2' : 'Local filesystem'}`);
   }
 
   /**

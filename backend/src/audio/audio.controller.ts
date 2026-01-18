@@ -18,6 +18,7 @@ import {
   BadRequestException,
   Inject,
   forwardRef,
+  Logger,
 } from '@nestjs/common';
 import { FileInterceptor } from '@nestjs/platform-express';
 import {
@@ -31,16 +32,21 @@ import {
 import { AudioService } from './audio.service';
 import { AudioUploadService } from './audio-upload.service';
 import { TranscriptService } from '../transcript/transcript.service';
+import { QuizGeneratorService } from '../quiz/quiz-generator.service';
 import { CreateAudioDto, UpdateAudioDto } from './dto/create-audio.dto';
 
 @ApiTags('audio')
 @Controller('audio')
 export class AudioController {
+  private readonly logger = new Logger(AudioController.name);
+
   constructor(
     private readonly audioService: AudioService,
     private readonly audioUploadService: AudioUploadService,
     @Inject(forwardRef(() => TranscriptService))
     private readonly transcriptService: TranscriptService,
+    @Inject(forwardRef(() => QuizGeneratorService))
+    private readonly quizGeneratorService: QuizGeneratorService,
   ) {}
 
   @Get()
@@ -69,6 +75,30 @@ export class AudioController {
   @ApiResponse({ status: 200, description: 'Returns topic statistics' })
   async getTopics() {
     return this.audioService.getTopicStats();
+  }
+
+  @Get('admin')
+  @ApiOperation({ summary: 'Get all audio files for admin (includes unpublished)' })
+  @ApiQuery({ name: 'topic', required: false, enum: ['daily', 'business', 'travel', 'culture'] })
+  @ApiQuery({ name: 'jlptLevel', required: false, enum: ['N2', 'N3'] })
+  @ApiQuery({ name: 'page', required: false, type: Number })
+  @ApiQuery({ name: 'limit', required: false, type: Number })
+  @ApiQuery({ name: 'includeUnpublished', required: false, type: Boolean })
+  @ApiResponse({ status: 200, description: 'Returns list of all audio files for admin' })
+  async findAllAdmin(
+    @Query('topic') topic?: string,
+    @Query('jlptLevel') jlptLevel?: string,
+    @Query('page') page?: string,
+    @Query('limit') limit?: string,
+    @Query('includeUnpublished') includeUnpublished?: string,
+  ) {
+    return this.audioService.findAllAdmin({
+      topic,
+      jlptLevel,
+      page: page ? parseInt(page, 10) : 1,
+      limit: limit ? parseInt(limit, 10) : 50,
+      includeUnpublished: includeUnpublished !== 'false',
+    });
   }
 
   @Get(':id')
@@ -162,18 +192,11 @@ export class AudioController {
       thumbnailColor: body.thumbnailColor || this.getDefaultColor(body.topic),
     });
 
-    // Auto-transcribe if requested
+    // Auto-transcribe and generate quiz if requested (run async in background)
     if (body.autoTranscribe === 'true') {
-      try {
-        const transcriptResult = await this.transcriptService.transcribe(uploaded.url);
-        await this.audioService.update(audio.id, {
-          transcript: transcriptResult.transcript,
-          transcriptJson: transcriptResult.segments,
-        });
-      } catch (error) {
-        // Log but don't fail the upload
-        console.warn('Auto-transcribe failed:', error.message);
-      }
+      this.processTranscriptAndQuiz(audio.id, uploaded.url).catch(err => {
+        this.logger.warn(`Background processing failed for audio ${audio.id}: ${err.message}`);
+      });
     }
 
     return audio;
@@ -226,6 +249,42 @@ export class AudioController {
     }
 
     await this.audioService.delete(id);
+  }
+
+  /**
+   * Background process: Generate transcript then quiz
+   */
+  private async processTranscriptAndQuiz(audioId: string, audioUrl: string): Promise<void> {
+    this.logger.log(`Starting background processing for audio ${audioId}`);
+    
+    // Step 1: Generate transcript
+    try {
+      this.logger.log(`Generating transcript for audio ${audioId}...`);
+      const transcriptResult = await this.transcriptService.transcribe(audioUrl);
+      
+      await this.audioService.update(audioId, {
+        transcript: transcriptResult.transcript,
+        transcriptJson: transcriptResult.segments,
+      });
+      this.logger.log(`Transcript generated for audio ${audioId}`);
+      
+      // Step 2: Generate quizzes (only if transcript was successful)
+      if (transcriptResult.transcript) {
+        this.logger.log(`Generating quizzes for audio ${audioId}...`);
+        try {
+          await this.quizGeneratorService.generateBatchQuizzes(audioId, {
+            includeMcq: true,
+            includeFill: true,
+            countEach: 2, // Generate 2 of each type (MCQ and Fill only, Reorder removed in Phase 4)
+          });
+          this.logger.log(`Quizzes generated for audio ${audioId}`);
+        } catch (quizError) {
+          this.logger.warn(`Quiz generation failed for audio ${audioId}: ${quizError.message}`);
+        }
+      }
+    } catch (transcriptError) {
+      this.logger.error(`Transcript generation failed for audio ${audioId}: ${transcriptError.message}`);
+    }
   }
 
   private getDefaultColor(topic: string): string {

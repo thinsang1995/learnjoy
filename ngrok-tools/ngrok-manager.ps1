@@ -16,6 +16,31 @@ $NgrokUrlFile = "$ScriptDir\current-ngrok-url.txt"
 $NgrokHistoryFile = "$ScriptDir\ngrok-url-history.json"
 $LogFile = "$ScriptDir\ngrok-manager.log"
 
+# Find ngrok executable
+$NgrokPath = $null
+$possiblePaths = @(
+    "$env:LOCALAPPDATA\Programs\ngrok.exe",
+    "$env:USERPROFILE\AppData\Local\Programs\ngrok.exe",
+    "C:\Program Files\ngrok\ngrok.exe",
+    "C:\ngrok\ngrok.exe"
+)
+foreach ($path in $possiblePaths) {
+    if (Test-Path $path) {
+        $NgrokPath = $path
+        break
+    }
+}
+# Fallback to PATH
+if (-not $NgrokPath) {
+    $NgrokPath = (Get-Command ngrok -ErrorAction SilentlyContinue).Source
+}
+if (-not $NgrokPath) {
+    Write-Host "ERROR: ngrok not found!" -ForegroundColor Red
+    Write-Host "Please install ngrok from https://ngrok.com/download"
+    Write-Host "Or run: winget install ngrok.ngrok"
+    exit 1
+}
+
 function Write-Log {
     param([string]$Message)
     $timestamp = Get-Date -Format "yyyy-MM-dd HH:mm:ss"
@@ -45,8 +70,8 @@ function Stop-Ngrok {
 
 function Start-Ngrok {
     param([string]$Port)
-    Write-Log "Starting ngrok on port $Port..."
-    Start-Process -FilePath "ngrok" -ArgumentList "http", $Port, "--region", $NgrokRegion -WindowStyle Hidden
+    Write-Log "Starting ngrok on port $Port using $NgrokPath..."
+    Start-Process -FilePath $NgrokPath -ArgumentList "http", $Port, "--region", $NgrokRegion -WindowStyle Hidden
     Start-Sleep -Seconds 5
     
     # Wait for ngrok to be ready
