@@ -8,12 +8,12 @@ export class CreateQuizDto {
 
   @ApiProperty({
     description: 'Quiz type',
-    enum: ['mcq', 'fill', 'reorder'],
+    enum: ['mcq', 'fill'],
     example: 'mcq',
   })
   @IsString()
-  @IsIn(['mcq', 'fill', 'reorder'])
-  type: 'mcq' | 'fill' | 'reorder';
+  @IsIn(['mcq', 'fill'])
+  type: 'mcq' | 'fill';
 
   @ApiPropertyOptional({ description: 'Quiz question text' })
   @IsOptional()
@@ -56,12 +56,12 @@ export class GenerateQuizDto {
 
   @ApiProperty({
     description: 'Quiz type to generate',
-    enum: ['mcq', 'fill', 'reorder'],
+    enum: ['mcq', 'fill'],
     example: 'mcq',
   })
   @IsString()
-  @IsIn(['mcq', 'fill', 'reorder'])
-  type: 'mcq' | 'fill' | 'reorder';
+  @IsIn(['mcq', 'fill'])
+  type: 'mcq' | 'fill';
 
   @ApiPropertyOptional({
     description: 'Number of quizzes to generate',

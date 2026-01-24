@@ -8,6 +8,50 @@ const prisma = new PrismaClient();
 async function main() {
   console.log('🌱 Seeding database...');
 
+  // Check for backup data
+  const fs = require('fs');
+  const path = require('path');
+  const backupPath = path.join(__dirname, 'seeds', 'data.json');
+
+  if (fs.existsSync(backupPath)) {
+    console.log('📂 Backup file found. Restoring data...');
+    const backupData = JSON.parse(fs.readFileSync(backupPath, 'utf-8'));
+
+    // Clean existing data
+    await prisma.quiz.deleteMany();
+    await prisma.audio.deleteMany();
+    await prisma.userProgress.deleteMany();
+
+    // Restore Audios
+    if (backupData.audios) {
+      for (const audio of backupData.audios) {
+        await prisma.audio.create({ data: audio });
+      }
+      console.log(`✅ Restored ${backupData.audios.length} audios`);
+    }
+
+    // Restore Quizzes
+    if (backupData.quizzes) {
+      for (const quiz of backupData.quizzes) {
+        await prisma.quiz.create({ data: quiz });
+      }
+      console.log(`✅ Restored ${backupData.quizzes.length} quizzes`);
+    }
+
+    // Restore UserProgress
+    if (backupData.userProgress) {
+      for (const progress of backupData.userProgress) {
+        await prisma.userProgress.create({ data: progress });
+      }
+      console.log(`✅ Restored ${backupData.userProgress.length} progress records`);
+    }
+    
+    console.log('🎉 Restore completed!');
+    return;
+  }
+
+  console.log('⚠️ No backup found. Using default seed data.');
+
   // Clean existing data
   await prisma.quiz.deleteMany();
   await prisma.audio.deleteMany();
@@ -35,28 +79,6 @@ async function main() {
       duration: 180,
       thumbnailColor: 'blue',
       transcript: 'それでは、会議を始めさせていただきます。本日の議題は新製品の発売スケジュールについてです。まず、企画部からご報告をお願いします。',
-      isPublished: true,
-    },
-    {
-      title: '旅行会話：駅での案内',
-      description: '駅で道を聞く、切符を買うなどの会話を学びます。',
-      topic: 'travel',
-      jlptLevel: 'N3',
-      audioUrl: 'https://example.com/audio/station-guide.mp3',
-      duration: 150,
-      thumbnailColor: 'mint',
-      transcript: 'すみません、東京駅までどうやって行けばいいですか？この電車に乗って、三つ目の駅で降りてください。ありがとうございます。',
-      isPublished: true,
-    },
-    {
-      title: '日本文化：お正月の過ごし方',
-      description: '日本のお正月の伝統と習慣について学びます。',
-      topic: 'culture',
-      jlptLevel: 'N2',
-      audioUrl: 'https://example.com/audio/new-year.mp3',
-      duration: 200,
-      thumbnailColor: 'lilac',
-      transcript: '日本ではお正月に家族が集まって、おせち料理を食べます。また、初詣として神社やお寺にお参りに行く習慣があります。',
       isPublished: true,
     },
   ];

@@ -94,13 +94,13 @@ export class QuizGeneratorService {
 
   /**
    * Generate a batch of different quiz types
+   * MCQ is generated first, then Fill (ensures correct display order)
    */
   async generateBatchQuizzes(
     audioId: string,
     options: {
       includeMcq?: boolean;
       includeFill?: boolean;
-      // includeReorder is deprecated - removed in Phase 4
       countEach?: number;
     },
   ): Promise<{ mcq?: GeneratedQuiz[]; fill?: GeneratedQuiz[] }> {
@@ -115,26 +115,15 @@ export class QuizGeneratorService {
     // Delete existing quizzes for this audio
     await this.quizService.deleteByAudioId(audioId);
 
-    // Generate quizzes in parallel
-    const promises: Promise<void>[] = [];
-
+    // Generate quizzes SEQUENTIALLY to ensure correct order
+    // MCQ first (order: 0), then Fill (order: 1)
     if (includeMcq) {
-      promises.push(
-        this.generateMultipleQuizzes(audioId, 'mcq', countEach, true)
-          .then(quizzes => { result.mcq = quizzes; })
-      );
+      result.mcq = await this.generateMultipleQuizzes(audioId, 'mcq', countEach, true);
     }
 
     if (includeFill) {
-      promises.push(
-        this.generateMultipleQuizzes(audioId, 'fill', countEach, true)
-          .then(quizzes => { result.fill = quizzes; })
-      );
+      result.fill = await this.generateMultipleQuizzes(audioId, 'fill', countEach, true);
     }
-
-    // Reorder quiz type removed in Phase 4
-
-    await Promise.all(promises);
 
     return result;
   }
@@ -164,7 +153,6 @@ export class QuizGeneratorService {
     const mapping: Record<QuizTypeParam, QuizType> = {
       mcq: QuizType.mcq,
       fill: QuizType.fill,
-      reorder: QuizType.reorder,
     };
     return mapping[type];
   }
@@ -175,8 +163,6 @@ export class QuizGeneratorService {
         return data.question || 'この会話の内容について正しいものはどれですか？';
       case 'fill':
         return '空欄に入る言葉を選んでください';
-      case 'reorder':
-        return '正しい順番に並べ替えてください';
       default:
         return '';
     }

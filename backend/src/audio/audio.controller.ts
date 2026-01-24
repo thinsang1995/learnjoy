@@ -275,7 +275,7 @@ export class AudioController {
           await this.quizGeneratorService.generateBatchQuizzes(audioId, {
             includeMcq: true,
             includeFill: true,
-            countEach: 2, // Generate 2 of each type (MCQ and Fill only, Reorder removed in Phase 4)
+            countEach: 1, // Generate 1 of each type (MCQ and Fill, 2 total)
           });
           this.logger.log(`Quizzes generated for audio ${audioId}`);
         } catch (quizError) {

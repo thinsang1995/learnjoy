@@ -4,7 +4,8 @@
 const getApiBaseUrl = () => {
   // Check if running in browser
   if (typeof window !== 'undefined') {
-    // Browser: call backend directly
+    // Browser: use relative path if configured (ngrok/nginx), otherwise localhost
+    if (process.env.NEXT_PUBLIC_API_URL === '') return '';
     return 'http://localhost:3001';
   }
   // Server-side (SSR): use docker internal network

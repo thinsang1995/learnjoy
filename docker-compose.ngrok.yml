@@ -31,7 +31,7 @@ services:
       NODE_ENV: development
       # For SSR: use backend service name (docker internal network)
       # For browser: frontend code uses relative path /api/*
-      NEXT_PUBLIC_API_URL: "http://backend:3001"
+      NEXT_PUBLIC_API_URL: ""
 
   # Backend doesn't need port exposed to host when using nginx
   backend:

@@ -34,7 +34,7 @@ export class QuizController {
 
   @Get('audio/:audioId/quiz')
   @ApiOperation({ summary: 'Get quizzes for an audio file' })
-  @ApiQuery({ name: 'type', required: false, enum: ['mcq', 'fill', 'reorder'] })
+  @ApiQuery({ name: 'type', required: false, enum: ['mcq', 'fill'] })
   @ApiResponse({ status: 200, description: 'Returns list of quizzes' })
   async findByAudioId(
     @Param('audioId') audioId: string,

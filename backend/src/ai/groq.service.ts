@@ -2,7 +2,7 @@ import { Injectable, Logger } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import Groq from 'groq-sdk';
 
-export type QuizTypeParam = 'mcq' | 'fill' | 'reorder';
+export type QuizTypeParam = 'mcq' | 'fill';
 
 @Injectable()
 export class GroqService {
@@ -80,20 +80,10 @@ ${transcript}
   "blankWord": "正解の単語",
   "options": ["正解", "誤答1", "誤答2"],
   "hint": "ヒント（任意）"
-}`;
-
-      case 'reorder':
-        return `以下のトランスクリプトから、並べ替えクイズを1問作成してください。
-
-【トランスクリプト】
-${transcript}
-
-【出力形式】JSON
-{
-  "originalSentence": "元の文",
-  "segments": ["シャッフルされた", "文の", "パーツ", "配列"],
-  "correctOrder": [2, 0, 3, 1]
-}`;
+}
+【注意】
+- 必ず＿＿＿の真ん中に正解を入れる
+`;
 
       default:
         throw new Error(`Unknown quiz type: ${type}`);
